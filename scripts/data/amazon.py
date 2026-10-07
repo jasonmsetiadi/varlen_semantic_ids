@@ -5,7 +5,11 @@ import json
 import numpy as np
 import polars as pl
 
-from varlen_sids.scripts.data.utils import preprocess_data
+try:
+    from varlen_sids.scripts.data.utils import preprocess_data
+except ModuleNotFoundError:
+    # Also support running this repository directly from its checkout.
+    from scripts.data.utils import preprocess_data
 
 
 TEST_INTERVAL = 7 * 24 * 60 * 60 * 4 # 4 weeks
@@ -17,10 +21,11 @@ def process(reviews_path, meta_path, hf_token=None):
     from sentence_transformers import SentenceTransformer
     import torch
 
-    if hf_token is None:
-        login(token=os.environ["HF_TOKEN"])
-    else:
-        login(token=hf_token)
+    # Use an explicitly supplied token or HF_TOKEN when available. Otherwise
+    # rely on credentials stored by `huggingface-cli login`.
+    token = hf_token or os.environ.get("HF_TOKEN")
+    if token:
+        login(token=token)
 
     def generator(path):
         with open(path, 'r') as f:
@@ -29,7 +34,7 @@ def process(reviews_path, meta_path, hf_token=None):
 
     interactions = pl.DataFrame(generator(reviews_path)) \
         .filter(pl.col('rating') >= 4.)
-    items = interactions['parent_asin'].unique()
+    items = interactions.select('parent_asin').unique()
 
     meta = pl.DataFrame(generator(meta_path))
     meta = meta.join(items, on='parent_asin', how='semi')
