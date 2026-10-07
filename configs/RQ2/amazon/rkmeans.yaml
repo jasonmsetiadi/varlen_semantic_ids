@@ -1,0 +1,11 @@
+data_dir: "./data/amazon"
+device: "cuda"
+mode: "train_holdout"
+out_dir: "./results/RQ2/amazon/rkmeans"
+num_levels: 5
+num_clusters: 4096
+num_iters: 40
+fit_batch_size: 128
+eval_batch_size: 512
+per_step: true
+expected_holdout_frac: 0.1
