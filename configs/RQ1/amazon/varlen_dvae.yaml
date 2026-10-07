@@ -3,6 +3,7 @@ train_interactions_file: "dvae_train_interactions.parquet"
 holdout_interactions_file: "dvae_holdout_interactions.parquet"
 
 device: "cuda"
+compile: auto
 seed: 42
 mode: "train"
 

@@ -85,11 +85,24 @@ def main(cfg):
         num_layers=cfg["decoder_num_layers"],
     )
     graph = (VarlenGame(encoder, decoder) if cfg["varlen"] else Game(encoder, decoder)).to(device)
-    graph = torch.compile(graph, dynamic=False)
+    compile_setting = cfg.get("compile", "auto")
+    if isinstance(compile_setting, str) and compile_setting.lower() == "auto":
+        if str(device).startswith("cuda") and torch.cuda.is_available():
+            capability = torch.cuda.get_device_capability(torch.device(device))
+            use_compile = capability >= (8, 0)
+        else:
+            use_compile = False
+    else:
+        use_compile = bool(compile_setting)
+    if use_compile:
+        graph = torch.compile(graph, dynamic=False)
     graph.train()
 
-    enc_inf = torch.compile(encoder.inference(mode="argmax"), dynamic=False)
-    dec_inf = torch.compile(decoder.inference(), dynamic=False)
+    enc_inf = encoder.inference(mode="argmax")
+    dec_inf = decoder.inference()
+    if use_compile:
+        enc_inf = torch.compile(enc_inf, dynamic=False)
+        dec_inf = torch.compile(dec_inf, dynamic=False)
 
     optimizer = torch.optim.AdamW(
         graph.parameters(),
