@@ -6,7 +6,14 @@ from collections import defaultdict
        
 import torch
 import torch.nn.functional as F
-from torch.utils.tensorboard import SummaryWriter
+
+
+class _NullWriter:
+    def add_scalar(self, *args, **kwargs):
+        pass
+
+    def close(self):
+        pass
 
 
 def validate(model, dataloader, steps=None, verbose=False):
@@ -51,7 +58,8 @@ def train_loop(
 ):
     graph.train()
 
-    writer = SummaryWriter(log_dir=log_dir)
+    # TensorBoard logging is intentionally disabled for the recommender.
+    writer = _NullWriter()
         
     train_dataloader_iterator = iter(train_dataloader)
     batch = next(train_dataloader_iterator)
