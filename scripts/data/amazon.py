@@ -50,7 +50,8 @@ def process(reviews_path, meta_path, hf_token=None):
             normalize_embeddings=True,
             device='cuda'
         )
-    item_embeddings = pl.DataFrame({'parent_asin': meta['parent_asin'], 'embed': item_embeddings})
+    item_embeddings = pl.DataFrame({'parent_asin': meta['parent_asin'], 'embed': item_embeddings}) \
+        .rename({'parent_asin': 'item_id'})
 
     return interactions, item_embeddings
 
