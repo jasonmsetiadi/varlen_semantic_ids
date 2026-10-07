@@ -29,6 +29,7 @@
 !scripts/**/*.py
 !scripts/data
 !scripts/data/**/*.py
+!scripts/data/**/*.sh
 
 !README.md
 !LICENSE
