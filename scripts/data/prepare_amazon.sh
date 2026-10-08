@@ -1,21 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Prepare Amazon Reviews 2023 for the semantic-ID and sequential-recommendation
-# experiments. Download the reviews and metadata files manually first.
-#
-# Put the downloaded Amazon Reviews files here using their original names:
-#   ./data/amazon/raw/All_Beauty.jsonl
-#   ./data/amazon/raw/meta_All_Beauty.jsonl
-#   ./data/amazon/raw/Musical_Instruments.jsonl
-#   ./data/amazon/raw/meta_Musical_Instruments.jsonl
-#
+# Prepare an Amazon Reviews category using the original uncompressed filenames.
 # Usage:
 #   ./scripts/data/prepare_amazon.sh beauty
 #   ./scripts/data/prepare_amazon.sh instruments
-#
-# Optional variables:
-#   OUTPUT_DIR=./data/beauty CORE_THRESHOLD=16 HOLDOUT_FRAC=0.1 SEED=42
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 category="${1:-beauty}"
@@ -56,7 +45,7 @@ from scripts.data.amazon import main, process
 
 reviews_path, meta_path, output_dir, core_threshold, holdout_frac, seed = sys.argv[1:]
 
-print("Generating Amazon item embeddings and interaction tables...")
+print("Generating Amazon item embeddings and interaction tables...", flush=True)
 interactions, embeddings = process(reviews_path, meta_path)
 interactions.write_parquet(os.path.join(output_dir, "interactions.parquet"))
 embeddings.write_parquet(os.path.join(output_dir, "embeddings.parquet"))

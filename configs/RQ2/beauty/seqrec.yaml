@@ -1,8 +1,8 @@
-data_dir: "./data/amazon"
-semantic_ids_path: "./results/RQ2/amazon/dvae/sids.parquet"
+data_dir: "./data/beauty"
+semantic_ids_path: "./results/RQ2/beauty/dvae/sids.parquet"
 test_interactions_path: "seqrec_test_interactions.parquet"
 device: "cuda"
-summary_json: "./results/RQ2/amazon/seqrec.json"
+summary_json: "./results/RQ2/beauty/seqrec.json"
 budget_mode: "tokens"
 history_budget: 512
 flatten_codebooks: false

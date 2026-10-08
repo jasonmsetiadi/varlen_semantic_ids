@@ -1,10 +1,10 @@
-data_dir: "./data/amazon"
+data_dir: "./data/beauty"
 train_interactions_file: "dvae_train_interactions.parquet"
 holdout_interactions_file: "dvae_holdout_interactions.parquet"
 device: "cuda"
 seed: 42
 mode: "train_holdout"
-out_dir: "./results/RQ2/amazon/dvae_varlen_3"
+out_dir: "./results/RQ2/beauty/dvae_varlen_3"
 num_epochs: 5
 vocab_size: 4096
 embed_dim: 128

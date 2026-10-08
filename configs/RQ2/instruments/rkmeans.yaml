@@ -1,7 +1,7 @@
-data_dir: "./data/amazon"
+data_dir: "./data/instruments"
 device: "cuda"
 mode: "train_holdout"
-out_dir: "./results/RQ2/amazon/rkmeans"
+out_dir: "./results/RQ2/instruments/rkmeans"
 num_levels: 5
 num_clusters: 4096
 num_iters: 40

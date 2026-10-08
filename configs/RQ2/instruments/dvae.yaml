@@ -1,10 +1,10 @@
-data_dir: "./data/amazon"
+data_dir: "./data/instruments"
 train_interactions_file: "dvae_train_interactions.parquet"
 holdout_interactions_file: "dvae_holdout_interactions.parquet"
 device: "cuda"
 seed: 42
 mode: "train_holdout"
-out_dir: "./results/RQ2/amazon/dvae_varlen_2"
+out_dir: "./results/RQ2/instruments/dvae"
 num_epochs: 5
 vocab_size: 4096
 embed_dim: 128
@@ -17,8 +17,7 @@ dropout: 0.1
 codebook_dropout: 0.1
 decoder_hidden_mul: 2
 decoder_num_layers: 2
-varlen: true
-length_cost: 0.3
+varlen: false
 compile: auto
 batch_num_tokens: 8192
 shuffle: true
