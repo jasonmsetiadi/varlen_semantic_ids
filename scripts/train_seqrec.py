@@ -246,7 +246,8 @@ def run_eval(
 
     code2items = defaultdict(list)
     for item_id, code in processed_semantic_ids.select("item_id", "sid").iter_rows():
-        code2items[tuple(code)].append(int(item_id))
+        # Amazon item IDs are strings (e.g. parent ASINs), not integers.
+        code2items[tuple(code)].append(item_id)
 
     max_candidates = require(cfg, "eval.max_candidates")
     per_code_max_items = require(cfg, "eval.per_code_max_items")
@@ -288,7 +289,7 @@ def run_eval(
                 if len(uid_candidates) >= max_candidates:
                     break
 
-            candidates[int(uid)] = uid_candidates
+            candidates[uid] = uid_candidates
 
     head_items_set = set(head_items_df["item_id"].to_list())
 
