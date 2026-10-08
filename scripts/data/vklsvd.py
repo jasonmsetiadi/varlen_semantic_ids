@@ -4,7 +4,10 @@ import tqdm
 import numpy as np
 import polars as pl
 
-from varlen_sids.scripts.data.utils import preprocess_data
+try:
+    from varlen_sids.scripts.data.utils import preprocess_data
+except ModuleNotFoundError:
+    from scripts.data.utils import preprocess_data
 
 NUM_TRAIN_VKLSVD_WEEKS = 25
 
