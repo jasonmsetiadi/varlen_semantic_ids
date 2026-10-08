@@ -52,5 +52,14 @@ config="${config:-${default_config}}"
 }
 
 cd "${repo_dir}"
+case "${method}" in
+  dvae|fixed-dvae) label="Fixed-length dVAE" ;;
+  varlen-dvae) label="Variable-length dVAE" ;;
+  rkmeans) label="RKMeans" ;;
+  reinforce) label="REINFORCE" ;;
+  varlen-reinforce) label="Variable-length REINFORCE" ;;
+esac
+
+echo "===== ${label} semantic-ID training ====="
 PYTHONPATH="${repo_dir}${PYTHONPATH:+:${PYTHONPATH}}" \
   python -m "${module}" --config "${config}"
