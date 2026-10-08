@@ -1,5 +1,5 @@
 data_dir: "./data/amazon"
-semantic_ids_path: "./results/RQ2/amazon/varlen_dvae/sids.parquet"
+semantic_ids_path: "./results/RQ2/amazon/dvae_varlen_3/sids.parquet"
 test_interactions_path: "seqrec_test_interactions.parquet"
 device: "cuda"
 summary_json: "./results/RQ2/amazon/seqrec_varlen_dvae.json"

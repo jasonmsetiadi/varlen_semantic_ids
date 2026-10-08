@@ -16,7 +16,7 @@ case "${method}" in
     label="fixed-length dVAE"
     ;;
   varlen-dvae)
-    semantic_config="configs/RQ2/amazon/varlen_dvae.yaml"
+    semantic_config="configs/RQ2/amazon/dvae_varlen_3.yaml"
     seqrec_config="configs/RQ2/amazon/seqrec_varlen_dvae.yaml"
     semantic_module="scripts.train_dvae"
     label="variable-length dVAE"
