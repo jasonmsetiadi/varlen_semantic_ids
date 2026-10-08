@@ -675,8 +675,14 @@ if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
+    ap.add_argument("--semantic-ids-path", default=None)
+    ap.add_argument("--summary-json", default=None)
     args = ap.parse_args()
 
     with open(args.config, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
+    if args.semantic_ids_path is not None:
+        cfg["semantic_ids_path"] = args.semantic_ids_path
+    if args.summary_json is not None:
+        cfg["summary_json"] = args.summary_json
     main(cfg)
