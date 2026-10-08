@@ -41,27 +41,62 @@ def get_metrics(method: str, path: Path) -> list[dict]:
     return rows
 
 
+def resolve_result(results_dir: Path, method: str) -> Path:
+    """Resolve both flat RQ1 files and RQ2 method directories."""
+    candidates = {
+        "dvae": [
+            results_dir / "dvae.json",
+            results_dir / "dvae" / "metrics.json",
+        ],
+        "varlen_dvae": [
+            results_dir / "dvae_varlen_lengthcost5.json",
+            results_dir / "varlen_dvae.json",
+            results_dir / "varlen_dvae" / "metrics.json",
+        ],
+        "rkmeans": [
+            results_dir / "rkmeans.json",
+            results_dir / "rkmeans" / "metrics.json",
+        ],
+    }
+    for path in candidates[method]:
+        if path.exists():
+            return path
+
+    # Support numbered experiment variants such as dvae_varlen_3.
+    patterns = {
+        "varlen_dvae": ("dvae_varlen*", "varlen_dvae*"),
+        "dvae": ("dvae*",),
+        "rkmeans": ("rkmeans*",),
+    }
+    matches = []
+    for pattern in patterns[method]:
+        matches.extend(results_dir.glob(pattern + ".json"))
+        matches.extend(results_dir.glob(pattern + "/metrics.json"))
+    if matches:
+        return sorted(matches)[-1]
+
+    raise FileNotFoundError(
+        f"Could not find {method} results under {results_dir}. "
+        "Expected a flat JSON file or <method>/metrics.json."
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--results-dir", default="results/RQ1/amazon")
-    parser.add_argument(
-        "--output",
-        default="results/RQ1/amazon/semantic_id_comparison.csv",
-    )
+    parser.add_argument("dataset", nargs="?", default="amazon")
+    parser.add_argument("--results-dir")
+    parser.add_argument("--output")
     args = parser.parse_args()
 
-    results_dir = Path(args.results_dir)
-    experiments = {
-        "dvae": results_dir / "dvae.json",
-        "varlen_dvae": results_dir / "dvae_varlen_lengthcost5.json",
-        "rkmeans": results_dir / "rkmeans.json",
-    }
+    results_dir = Path(args.results_dir or f"results/RQ2/{args.dataset}")
+    output_path = args.output or str(results_dir / "semantic_id_comparison.csv")
+    experiments = ("dvae", "varlen_dvae", "rkmeans")
 
     rows = []
-    for method, path in experiments.items():
-        rows.extend(get_metrics(method, path))
+    for method in experiments:
+        rows.extend(get_metrics(method, resolve_result(results_dir, method)))
 
-    output = Path(args.output)
+    output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = list(rows[0]) if rows else ["method", "split"]
     with output.open("w", newline="", encoding="utf-8") as f:

@@ -30,24 +30,34 @@ def load_row(method: str, path: Path) -> dict:
     return {"method": method, **{key: metrics.get(key) for key in METRICS}}
 
 
+def resolve_result(results_dir: Path, method: str) -> Path:
+    candidates = {
+        "dvae": ("seqrec_dvae.json", "dvae.json"),
+        "varlen_dvae": ("seqrec_varlen_dvae.json", "seqrec_dvae_varlen.json"),
+        "rkmeans": ("seqrec_rkmeans.json", "rkmeans.json"),
+    }
+    for filename in candidates[method]:
+        path = results_dir / filename
+        if path.exists():
+            return path
+    raise FileNotFoundError(
+        f"Could not find sequential-recommendation results for {method} under {results_dir}."
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--results-dir", default="results/RQ2/amazon")
-    parser.add_argument(
-        "--output",
-        default="results/RQ2/amazon/seqrec_comparison.csv",
-    )
+    parser.add_argument("dataset", nargs="?", default="amazon")
+    parser.add_argument("--results-dir")
+    parser.add_argument("--output")
     args = parser.parse_args()
 
-    results_dir = Path(args.results_dir)
-    experiments = {
-        "dvae": results_dir / "seqrec_dvae.json",
-        "varlen_dvae": results_dir / "seqrec_varlen_dvae.json",
-        "rkmeans": results_dir / "seqrec_rkmeans.json",
-    }
+    results_dir = Path(args.results_dir or f"results/RQ2/{args.dataset}")
+    output_path = args.output or str(results_dir / "seqrec_comparison.csv")
+    experiments = ("dvae", "varlen_dvae", "rkmeans")
 
-    rows = [load_row(method, path) for method, path in experiments.items()]
-    output = Path(args.output)
+    rows = [load_row(method, resolve_result(results_dir, method)) for method in experiments]
+    output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
 
     fieldnames = ["method", *METRICS]
