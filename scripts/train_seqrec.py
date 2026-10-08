@@ -153,11 +153,30 @@ def run_train(cfg: Dict[str, Any], stats: Dict[str, Any], pretrain_df: pl.DataFr
     if require(cfg, "train.compile"):
         graph = torch.compile(graph, dynamic=require(cfg, "train.compile_dynamic"))
 
-    optimizers = graph.setup_optimizers(
-        adam_lr=require(cfg, "train.adam_lr"),
-        muon_lr=require(cfg, "train.muon_lr"),
-        weight_decay=require(cfg, "train.weight_decay"),
-    )
+    optimizer_mode = str(cfg.get("train", {}).get("optimizer", "auto")).lower()
+    if optimizer_mode == "auto":
+        capability = torch.cuda.get_device_capability(torch.device("cuda"))
+        optimizer_mode = "muon" if capability >= (8, 0) else "adamw"
+
+    if optimizer_mode == "adamw":
+        optimizers = [torch.optim.AdamW(
+            graph.parameters(),
+            lr=require(cfg, "train.adam_lr"),
+            weight_decay=require(cfg, "train.weight_decay"),
+            betas=(0.9, 0.95),
+        )]
+        for group in optimizers[0].param_groups:
+            group["initial_lr"] = group["lr"]
+        print("Using AdamW optimizer (V100-safe; Muon disabled).")
+    elif optimizer_mode == "muon":
+        optimizers = graph.setup_optimizers(
+            adam_lr=require(cfg, "train.adam_lr"),
+            muon_lr=require(cfg, "train.muon_lr"),
+            weight_decay=require(cfg, "train.weight_decay"),
+        )
+        print("Using AdamW + Muon optimizers.")
+    else:
+        raise ValueError(f"Unknown train.optimizer={optimizer_mode!r}; use 'auto', 'adamw', or 'muon'.")
 
     def step_optimizers_func(step: int):
         step_optimizers(

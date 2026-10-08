@@ -180,6 +180,16 @@ def step_optimizers(
         num_muon_warmup_steps=300, num_muon_cooldown_steps=50, momentum_min=0.85, momentum_max=0.95,
         hetero=True
 ):
+    if len(optimizers) == 1:
+        optimizer = optimizers[0]
+        for group in optimizer.param_groups:
+            group["lr"] = group["initial_lr"] * linear_decay(
+                step, num_iterations, num_adam_warmup_steps, warmdown_ratio, final_lr_frac
+            )
+        optimizer.step()
+        model.zero_grad(set_to_none=True)
+        return
+
     for optimizer in optimizers:
         for group in optimizer.param_groups:
             group["lr"] = group["initial_lr"] * linear_decay(step, num_iterations, num_adam_warmup_steps, warmdown_ratio, final_lr_frac)

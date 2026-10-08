@@ -21,6 +21,7 @@ train:
   compile: false
   compile_dynamic: false
   grad_clip: 0.0
+  optimizer: auto
 eval:
   beam_size: 100
   max_batch_tokens: 32768
