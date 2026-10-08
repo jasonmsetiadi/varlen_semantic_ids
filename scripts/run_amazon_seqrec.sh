@@ -11,19 +11,25 @@ method="${1:-}"
 case "${method}" in
   dvae)
     semantic_config="configs/RQ2/amazon/dvae.yaml"
-    seqrec_config="configs/RQ2/amazon/seqrec_dvae.yaml"
+    seqrec_config="configs/RQ2/amazon/seqrec.yaml"
+    semantic_ids_path="results/RQ2/amazon/dvae/sids.parquet"
+    summary_json="results/RQ2/amazon/seqrec_dvae.json"
     semantic_module="scripts.train_dvae"
     label="fixed-length dVAE"
     ;;
   varlen-dvae)
     semantic_config="configs/RQ2/amazon/dvae_varlen_3.yaml"
-    seqrec_config="configs/RQ2/amazon/seqrec_varlen_dvae.yaml"
+    seqrec_config="configs/RQ2/amazon/seqrec.yaml"
+    semantic_ids_path="results/RQ2/amazon/dvae_varlen_3/sids.parquet"
+    summary_json="results/RQ2/amazon/seqrec_varlen_dvae.json"
     semantic_module="scripts.train_dvae"
     label="variable-length dVAE"
     ;;
   rkmeans)
     semantic_config="configs/RQ2/amazon/rkmeans.yaml"
-    seqrec_config="configs/RQ2/amazon/seqrec_rkmeans.yaml"
+    seqrec_config="configs/RQ2/amazon/seqrec.yaml"
+    semantic_ids_path="results/RQ2/amazon/rkmeans/sids.parquet"
+    summary_json="results/RQ2/amazon/seqrec_rkmeans.json"
     semantic_module="scripts.train_rkmeans"
     label="RKMeans"
     ;;
@@ -48,6 +54,9 @@ echo "===== Amazon: ${label} semantic IDs ====="
 python -m "${semantic_module}" --config "${semantic_config}"
 
 echo "===== Amazon: sequential recommender with ${label} IDs ====="
-python -m scripts.train_seqrec --config "${seqrec_config}"
+python -m scripts.train_seqrec \
+  --config "${seqrec_config}" \
+  --semantic-ids-path "${semantic_ids_path}" \
+  --summary-json "${summary_json}"
 
 echo "Amazon semantic-ID and sequential-recommendation experiments complete."
