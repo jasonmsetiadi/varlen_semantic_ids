@@ -599,7 +599,7 @@ def iter_length_buckets(
     test_df must be sorted by length(token_col).
     Yields (uids, token_lists) where all token_lists have same len.
     """
-    cur_uids: List[int] = []
+    cur_uids: List = []
     cur_tokens: List[List[int]] = []
     cur_len: int = -1
     cur_tok_budget: int = 0
@@ -620,7 +620,8 @@ def iter_length_buckets(
             cur_len = L
             cur_tok_budget = 0
 
-        cur_uids.append(int(uid))
+        # Preserve dataset user IDs; Amazon user IDs are strings.
+        cur_uids.append(uid)
         cur_tokens.append(toks)
         cur_tok_budget += L
 
