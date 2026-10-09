@@ -23,9 +23,9 @@ train:
   grad_clip: 0.0
   optimizer: auto
 eval:
-  beam_size: 20
-  max_batch_tokens: 8192
-  max_batch_users: 128
+  beam_size: 50
+  max_batch_tokens: 16384
+  max_batch_users: 256
   max_candidates: 100
   per_code_max_items: 10
   k_list: [1, 10, 100]
