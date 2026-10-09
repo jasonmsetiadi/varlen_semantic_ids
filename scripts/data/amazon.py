@@ -36,7 +36,10 @@ def process(reviews_path, meta_path, hf_token=None):
         .filter(pl.col('rating') >= 4.)
     items = interactions.select('parent_asin').unique()
 
-    meta = pl.DataFrame(generator(meta_path))
+    meta = pl.DataFrame(
+        generator(meta_path),
+        infer_schema_length=None,
+    )
     meta = meta.join(items, on='parent_asin', how='semi')
     texts = meta.map_rows(lambda x: f'Title: {x[1]} | Store: {x[9]} | Main category: {x[0]}')
 
