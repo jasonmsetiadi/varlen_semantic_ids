@@ -45,7 +45,7 @@ def main(data_dir, dst_dir, core_threshold=16, holdout_frac=0.1, seed=42, topk_h
 
 if __name__ == '__main__':
     main(
-        data_dir='../data/yambda/', 
+        data_dir='./data/yambda',
         dst_dir='./data/yambda', 
         core_threshold=16,
         holdout_frac=0.1,
