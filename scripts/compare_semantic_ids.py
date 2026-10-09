@@ -15,7 +15,10 @@ def get_metrics(method: str, path: Path) -> list[dict]:
         result = json.load(f)
 
     rows = []
-    for split in ("train", "holdout", "cold"):
+    # RQ2 train_holdout evaluations use one combined training split.  Keep
+    # the legacy train/holdout names for older flat result files.
+    split_names = ("train_holdout", "train", "holdout", "cold")
+    for split in split_names:
         values = result.get(split)
         if values is None:
             continue
@@ -28,7 +31,7 @@ def get_metrics(method: str, path: Path) -> list[dict]:
         rows.append({
             "method": method,
             "split": split,
-            "recon_at_last": recon.get("@last"),
+            "recon_at_last": recon.get("@last", recon.get("@5")),
             "recon_at_5": recon.get("@5"),
             "recon_varlen": recon.get("@varlen"),
             "perplexity": codebook.get("perplexity_macro"),
@@ -42,42 +45,19 @@ def get_metrics(method: str, path: Path) -> list[dict]:
 
 
 def resolve_result(results_dir: Path, method: str) -> Path:
-    """Resolve both flat RQ1 files and RQ2 method directories."""
-    candidates = {
-        "dvae": [
-            results_dir / "dvae.json",
-            results_dir / "dvae" / "metrics.json",
-        ],
-        "varlen_dvae": [
-            results_dir / "dvae_varlen_lengthcost5.json",
-            results_dir / "varlen_dvae.json",
-            results_dir / "varlen_dvae" / "metrics.json",
-        ],
-        "rkmeans": [
-            results_dir / "rkmeans.json",
-            results_dir / "rkmeans" / "metrics.json",
-        ],
+    """Resolve the canonical nested tokenizer metrics file."""
+    method_dirs = {
+        "dvae": "dvae",
+        "varlen_dvae": "dvae_varlen",
+        "rkmeans": "rkmeans",
     }
-    for path in candidates[method]:
-        if path.exists():
-            return path
-
-    # Support numbered experiment variants such as dvae_varlen_3.
-    patterns = {
-        "varlen_dvae": ("dvae_varlen*", "varlen_dvae*"),
-        "dvae": ("dvae*",),
-        "rkmeans": ("rkmeans*",),
-    }
-    matches = []
-    for pattern in patterns[method]:
-        matches.extend(results_dir.glob(pattern + ".json"))
-        matches.extend(results_dir.glob(pattern + "/metrics.json"))
-    if matches:
-        return sorted(matches)[-1]
+    path = results_dir / method_dirs[method] / "metrics.json"
+    if path.exists():
+        return path
 
     raise FileNotFoundError(
-        f"Could not find {method} results under {results_dir}. "
-        "Expected a flat JSON file or <method>/metrics.json."
+        f"Missing tokenizer metrics for {method}: {path}. "
+        "Expected results/<method>/metrics.json."
     )
 
 
