@@ -48,7 +48,7 @@ def resolve_result(results_dir: Path, method: str) -> Path:
     """Resolve the canonical nested tokenizer metrics file."""
     method_dirs = {
         "dvae": "dvae",
-        "varlen_dvae": "dvae_varlen",
+        "varlen_dvae": "dvae_varlen_3",
         "rkmeans": "rkmeans",
     }
     path = results_dir / method_dirs[method] / "metrics.json"
