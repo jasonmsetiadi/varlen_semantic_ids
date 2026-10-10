@@ -23,7 +23,7 @@ train:
   grad_clip: 0.0
   optimizer: auto
 eval:
-  beam_size: 50
+  beam_size: 100
   max_batch_tokens: 16384
   max_batch_users: 256
   max_candidates: 100
