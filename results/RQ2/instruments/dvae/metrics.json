@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "varlen": false,
+    "maxlen": 5,
+    "vocab_size": 4096,
+    "batch_size": 512,
+    "per_step": true,
+    "expected_holdout_frac": 0.01
+  },
+  "sanity": {
+    "train_holdout_items": 23834,
+    "cold_items": 147
+  },
+  "train_holdout": {
+    "n_items": 23834,
+    "recon": {
+      "uniform": {
+        "@1": 0.3094831938670367,
+        "@2": 0.31020361818782716,
+        "@3": 0.3144984535395904,
+        "@4": 0.3011980264031008,
+        "@5": 0.28854474647639133
+      },
+      "unigram": {
+        "@1": 0.2101575357567805,
+        "@2": 0.23475521105610409,
+        "@3": 0.2431612547758349,
+        "@4": 0.2305123332598751,
+        "@5": 0.21838345834927944
+      }
+    },
+    "codebook": {
+      "perplexity@1": 1574.74886004255,
+      "codebook_usage@1": 0.663330078125,
+      "perplexity@2": 2326.064644306105,
+      "codebook_usage@2": 0.814208984375,
+      "perplexity@3": 2501.3677622054433,
+      "codebook_usage@3": 0.831298828125,
+      "perplexity@4": 2599.0892951564224,
+      "codebook_usage@4": 0.85302734375,
+      "perplexity@5": 2667.3770909096756,
+      "codebook_usage@5": 0.864013671875,
+      "perplexity_macro": 2333.729530524039,
+      "codebook_usage_macro": 0.80517578125,
+      "perplexity_micro": 2664.122038263957,
+      "codebook_usage_micro": 0.94287109375,
+      "total_tokens_micro": 119170
+    },
+    "length": {
+      "fixed": 5
+    },
+    "distinctness": {
+      "n_items": 23834,
+      "n_unique_codes": 23605,
+      "unique_codes_per_item": 0.9903918771502895
+    }
+  },
+  "cold": {
+    "n_items": 147,
+    "recon": {
+      "uniform": {
+        "@1": 0.3737377244598986,
+        "@2": 0.35488491966610625,
+        "@3": 0.3512168936177963,
+        "@4": 0.3413807875445077,
+        "@5": 0.32330862032312707
+      },
+      "unigram": {
+        "@1": 0.3665666126069544,
+        "@2": 0.3495370255035584,
+        "@3": 0.34720741323873067,
+        "@4": 0.33501366855335657,
+        "@5": 0.3185840788341682
+      }
+    },
+    "codebook": {
+      "perplexity@1": 117.76862760159553,
+      "codebook_usage@1": 0.030517578125,
+      "perplexity@2": 137.60930814067993,
+      "codebook_usage@2": 0.0341796875,
+      "perplexity@3": 137.60930814067993,
+      "codebook_usage@3": 0.0341796875,
+      "perplexity@4": 140.22940901794283,
+      "codebook_usage@4": 0.03466796875,
+      "perplexity@5": 140.22940901794283,
+      "codebook_usage@5": 0.03466796875,
+      "perplexity_macro": 134.6892123837682,
+      "codebook_usage_macro": 0.033642578125,
+      "perplexity_micro": 459.6910270601101,
+      "codebook_usage_micro": 0.12646484375,
+      "total_tokens_micro": 735
+    },
+    "length": {
+      "fixed": 5
+    },
+    "distinctness": {
+      "n_items": 147,
+      "n_unique_codes": 146,
+      "unique_codes_per_item": 0.9931972789115646
+    }
+  }
+}

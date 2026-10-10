@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "varlen": true,
+    "maxlen": 5,
+    "vocab_size": 4096,
+    "batch_size": 512,
+    "per_step": true,
+    "expected_holdout_frac": 0.01
+  },
+  "sanity": {
+    "train_holdout_items": 23834,
+    "cold_items": 147
+  },
+  "train_holdout": {
+    "n_items": 23834,
+    "recon": {
+      "uniform": {
+        "@1": 0.3047695523231854,
+        "@2": 0.2959893079294978,
+        "@3": 0.2983997654192618,
+        "@4": 0.30459607338719275,
+        "@5": 0.3115166712699545,
+        "@varlen": 0.2925398763298258
+      },
+      "unigram": {
+        "@1": 0.19599733276825065,
+        "@2": 0.1925335474379067,
+        "@3": 0.1938049897003941,
+        "@4": 0.1975965517046711,
+        "@5": 0.20198840004101806,
+        "@varlen": 0.1894151104930645
+      }
+    },
+    "codebook": {
+      "perplexity@1": 882.6900618632861,
+      "codebook_usage@1": 0.335205078125,
+      "perplexity@2": 871.5272355173095,
+      "codebook_usage@2": 0.3203125,
+      "perplexity@3": 34.64005812818922,
+      "codebook_usage@3": 0.008544921875,
+      "perplexity@4": 2.0,
+      "codebook_usage@4": 0.00048828125,
+      "perplexity@5": 2.0,
+      "codebook_usage@5": 0.00048828125,
+      "perplexity_macro": 358.5714711017569,
+      "codebook_usage_macro": 0.1330078125,
+      "perplexity_micro": 949.3109746592904,
+      "codebook_usage_micro": 0.35498046875,
+      "total_tokens_micro": 35988
+    },
+    "length": {
+      "mean_uniform": 1.5099437777964253,
+      "mean_unigram": 1.3048314166115411
+    },
+    "popularity_length": {
+      "pop_stats_by_length": {
+        "1": {
+          "count": 11720,
+          "pop_mean": 112.30477815699659,
+          "pop_median": 39.0,
+          "pop_std": 278.81345591197464,
+          "pop_min": 16.0,
+          "pop_max": 8870.0
+        },
+        "2": {
+          "count": 12078,
+          "pop_mean": 47.53750620963736,
+          "pop_median": 30.0,
+          "pop_std": 50.27240238415559,
+          "pop_min": 16.0,
+          "pop_max": 742.0
+        },
+        "3": {
+          "count": 34,
+          "pop_mean": 33.8235294117647,
+          "pop_median": 22.5,
+          "pop_std": 30.411790564641098,
+          "pop_min": 16.0,
+          "pop_max": 163.0
+        },
+        "5": {
+          "count": 2,
+          "pop_mean": 18.5,
+          "pop_median": 18.5,
+          "pop_std": 3.5355339059327378,
+          "pop_min": 16.0,
+          "pop_max": 21.0
+        }
+      }
+    },
+    "distinctness": {
+      "n_items": 23834,
+      "n_unique_codes": 10100,
+      "unique_codes_per_item": 0.4237643702274062
+    }
+  },
+  "cold": {
+    "n_items": 147,
+    "recon": {
+      "uniform": {
+        "@1": 0.36571092670466376,
+        "@2": 0.35691423481013257,
+        "@3": 0.3566211259283963,
+        "@4": 0.36362589622030206,
+        "@5": 0.3721549624488442,
+        "@varlen": 0.3560857967454536
+      },
+      "unigram": {
+        "@1": 0.3608356138475874,
+        "@2": 0.34950386099263686,
+        "@3": 0.34844695629716493,
+        "@4": 0.35526529947916424,
+        "@5": 0.36340324246153294,
+        "@varlen": 0.34833337173980683
+      }
+    },
+    "codebook": {
+      "perplexity@1": 100.06672091816597,
+      "codebook_usage@1": 0.0283203125,
+      "perplexity@2": 61.16402371339745,
+      "codebook_usage@2": 0.015380859375,
+      "perplexity_macro": 80.61537231578171,
+      "codebook_usage_macro": 0.0218505859375,
+      "perplexity_micro": 144.24221111718668,
+      "codebook_usage_micro": 0.040283203125,
+      "total_tokens_micro": 216
+    },
+    "length": {
+      "mean_uniform": 1.469387755102041,
+      "mean_unigram": 1.4601226996377377
+    },
+    "popularity_length": {
+      "pop_stats_by_length": {
+        "1": {
+          "count": 78,
+          "pop_mean": 1.1282051282051282,
+          "pop_median": 1.0,
+          "pop_std": 0.46595731254720857,
+          "pop_min": 1.0,
+          "pop_max": 4.0
+        },
+        "2": {
+          "count": 69,
+          "pop_mean": 1.0869565217391304,
+          "pop_median": 1.0,
+          "pop_std": 0.6121113517207232,
+          "pop_min": 1.0,
+          "pop_max": 6.0
+        }
+      }
+    },
+    "distinctness": {
+      "n_items": 147,
+      "n_unique_codes": 127,
+      "unique_codes_per_item": 0.8639455782312925
+    }
+  }
+}
