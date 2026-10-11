@@ -28,14 +28,14 @@ def process(reviews_path, meta_path, hf_token=None):
     if token:
         login(token=token)
 
+    def generator(path):
+        with open(path, 'r') as f:
+            for line in f:
+                yield json.loads(line.strip())
+
     if reviews_path.endswith('.csv'):
         interactions = pl.read_csv(reviews_path)
     else:
-        def generator(path):
-            with open(path, 'r') as f:
-                for line in f:
-                    yield json.loads(line.strip())
-
         interactions = pl.DataFrame(generator(reviews_path))
 
     interactions = interactions \
