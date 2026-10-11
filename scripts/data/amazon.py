@@ -1,6 +1,7 @@
 import os
 import tqdm
 import json
+import argparse
 
 import numpy as np
 import polars as pl
@@ -83,10 +84,25 @@ def main(data_dir, dst_dir, core_threshold=16, holdout_frac=0.1, seed=42):
 
 
 if __name__ == '__main__':
-    main(
-        data_dir='../data/amazon/toys_and_games', 
-        dst_dir='./data/amazon_toys_and_games', 
-        core_threshold=5,
-        holdout_frac=0.1,
-        seed=42
-    )
+    parser = argparse.ArgumentParser(description="Prepare an Amazon category from CSV reviews.")
+    parser.add_argument("category", choices=["beauty", "instruments"])
+    parser.add_argument("--input-dir", default="./data/amazon/raw")
+    parser.add_argument("--output-dir")
+    parser.add_argument("--core-threshold", type=int, default=16)
+    parser.add_argument("--holdout-frac", type=float, default=0.1)
+    parser.add_argument("--seed", type=int, default=42)
+    args = parser.parse_args()
+
+    amazon_name = {
+        "beauty": "All_Beauty",
+        "instruments": "Musical_Instruments",
+    }[args.category]
+    output_dir = args.output_dir or f"./data/{args.category}"
+    reviews_path = os.path.join(args.input_dir, f"{amazon_name}.csv")
+    meta_path = os.path.join(args.input_dir, f"meta_{amazon_name}.jsonl")
+
+    os.makedirs(output_dir, exist_ok=True)
+    interactions, embeddings = process(reviews_path, meta_path)
+    interactions.write_parquet(os.path.join(output_dir, "interactions.parquet"))
+    embeddings.write_parquet(os.path.join(output_dir, "embeddings.parquet"))
+    main(output_dir, output_dir, args.core_threshold, args.holdout_frac, args.seed)
