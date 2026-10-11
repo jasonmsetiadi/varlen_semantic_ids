@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Prepare an Amazon Reviews category using the original uncompressed filenames.
+# Prepare an Amazon Reviews category from the prefiltered CSV files.
 # Usage:
 #   ./scripts/data/prepare_amazon.sh beauty
 #   ./scripts/data/prepare_amazon.sh instruments
@@ -23,7 +23,7 @@ case "${category}" in
     ;;
 esac
 
-reviews_path="${input_dir}/${amazon_name}.jsonl"
+reviews_path="${input_dir}/${amazon_name}.csv"
 meta_path="${input_dir}/meta_${amazon_name}.jsonl"
 output_dir="${OUTPUT_DIR:-${repo_dir}/data/${category}}"
 core_threshold="${CORE_THRESHOLD:-16}"
