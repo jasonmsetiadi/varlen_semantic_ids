@@ -1,9 +1,7 @@
 import os
-import tqdm
 import json
 import argparse
 
-import numpy as np
 import polars as pl
 
 try:
@@ -13,11 +11,8 @@ except ModuleNotFoundError:
     from scripts.data.utils import preprocess_data
 
 
-TEST_INTERVAL = 7 * 24 * 60 * 60 * 4 # 4 weeks
-
-
 # actual data should be downloaded through https://amazon-reviews-2023.github.io/
-def process(reviews_path, meta_path, hf_token=None):
+def process(reviews_paths, meta_path, hf_token=None):
     from huggingface_hub import login
     from sentence_transformers import SentenceTransformer
     import torch
@@ -33,10 +28,18 @@ def process(reviews_path, meta_path, hf_token=None):
             for line in f:
                 yield json.loads(line.strip())
 
-    if reviews_path.endswith('.csv'):
-        interactions = pl.read_csv(reviews_path)
-    else:
-        interactions = pl.DataFrame(generator(reviews_path))
+    if isinstance(reviews_paths, (str, os.PathLike)):
+        reviews_paths = [reviews_paths]
+
+    interaction_frames = []
+    for reviews_path in reviews_paths:
+        reviews_path = os.fspath(reviews_path)
+        if reviews_path.endswith('.csv'):
+            interaction_frames.append(pl.read_csv(reviews_path))
+        else:
+            interaction_frames.append(pl.DataFrame(generator(reviews_path)))
+
+    interactions = pl.concat(interaction_frames)
 
     interactions = interactions \
         .filter(pl.col('rating') >= 4.)
@@ -65,10 +68,8 @@ def process(reviews_path, meta_path, hf_token=None):
     return interactions, item_embeddings
 
 
-def main(data_dir, dst_dir, core_threshold=16, holdout_frac=0.1, seed=42):
-    item_embeddings = pl.read_parquet(os.path.join(data_dir, 'embeddings.parquet'))
-
-    interactions = pl.read_parquet(os.path.join(data_dir, 'interactions.parquet')) \
+def _load_split_interactions(path):
+    return pl.read_csv(path) \
         .filter(pl.col('rating') >= 4.) \
         .select([
             pl.col('user_id'),
@@ -76,17 +77,23 @@ def main(data_dir, dst_dir, core_threshold=16, holdout_frac=0.1, seed=42):
             pl.col('timestamp') // 1000
         ])
 
-    max_timestamp = interactions['timestamp'].max()
-    train = interactions.filter(pl.col('timestamp') < max_timestamp - TEST_INTERVAL)
-    test = interactions.filter(pl.col('timestamp') >= max_timestamp - TEST_INTERVAL)
+
+def main(train_path, test_path, embeddings_path, dst_dir,
+         core_threshold=16, holdout_frac=0.1, seed=42):
+    item_embeddings = pl.read_parquet(embeddings_path)
+    train = _load_split_interactions(train_path)
+    test = _load_split_interactions(test_path)
 
     preprocess_data(train, test, item_embeddings, dst_dir, core_threshold, holdout_frac, seed)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Prepare an Amazon category from CSV reviews.")
-    parser.add_argument("category", choices=["beauty", "instruments"])
-    parser.add_argument("--input-dir", default="./data/amazon/raw")
+    parser.add_argument("category", choices=["beauty", "instruments", "video_games"])
+    parser.add_argument("--input-dir", default="./data/amazon/raw",
+                        help="Directory containing Amazon metadata JSONL files.")
+    parser.add_argument("--split-dir", default="./data/amazon/split",
+                        help="Directory containing pre-split <category>.train.csv and .test.csv files.")
     parser.add_argument("--output-dir")
     parser.add_argument("--core-threshold", type=int, default=16)
     parser.add_argument("--holdout-frac", type=float, default=0.1)
@@ -96,13 +103,24 @@ if __name__ == '__main__':
     amazon_name = {
         "beauty": "All_Beauty",
         "instruments": "Musical_Instruments",
+        "video_games": "Video_Games",
     }[args.category]
     output_dir = args.output_dir or f"./data/{args.category}"
-    reviews_path = os.path.join(args.input_dir, f"{amazon_name}.csv")
+    train_path = os.path.join(args.split_dir, f"{amazon_name}.train.csv")
+    test_path = os.path.join(args.split_dir, f"{amazon_name}.test.csv")
     meta_path = os.path.join(args.input_dir, f"meta_{amazon_name}.jsonl")
 
     os.makedirs(output_dir, exist_ok=True)
-    interactions, embeddings = process(reviews_path, meta_path)
+    interactions, embeddings = process([train_path, test_path], meta_path)
     interactions.write_parquet(os.path.join(output_dir, "interactions.parquet"))
-    embeddings.write_parquet(os.path.join(output_dir, "embeddings.parquet"))
-    main(output_dir, output_dir, args.core_threshold, args.holdout_frac, args.seed)
+    embeddings_path = os.path.join(output_dir, "embeddings.parquet")
+    embeddings.write_parquet(embeddings_path)
+    main(
+        train_path,
+        test_path,
+        embeddings_path,
+        output_dir,
+        args.core_threshold,
+        args.holdout_frac,
+        args.seed,
+    )
