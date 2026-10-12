@@ -8,50 +8,50 @@
     "expected_holdout_frac": 0.01
   },
   "sanity": {
-    "train_holdout_items": 23834
+    "train_holdout_items": 5667
   },
   "train_holdout": {
-    "n_items": 23834,
+    "n_items": 5667,
     "recon": {
       "uniform": {
-        "@1": 0.16443809178928465,
-        "@2": 0.1042128296679495,
-        "@3": 0.06829119628934419,
-        "@4": 0.04357896903882223,
-        "@5": 0.02610871595174782
+        "@1": 0.039801178984863315,
+        "@2": 9.116225680953867e-06,
+        "@3": 9.116225680953867e-06,
+        "@4": 9.116225680953867e-06,
+        "@5": 9.116225680953867e-06
       },
       "unigram": {
-        "@1": 0.15101334685923354,
-        "@2": 0.09657873017860455,
-        "@3": 0.06451614747446557,
-        "@4": 0.041862344548011625,
-        "@5": 0.02551715521637344
+        "@1": 0.03850613708936819,
+        "@2": 6.958966909357753e-06,
+        "@3": 6.958966909357753e-06,
+        "@4": 6.958966909357753e-06,
+        "@5": 6.958966909357753e-06
       }
     },
     "codebook": {
-      "perplexity@1": 3190.6437707317496,
+      "perplexity@1": 3703.4520776568465,
       "codebook_usage@1": 1.0,
-      "perplexity@2": 934.9123055317779,
-      "codebook_usage@2": 0.999755859375,
-      "perplexity@3": 518.2461777537086,
-      "codebook_usage@3": 0.99951171875,
-      "perplexity@4": 299.7176030454912,
-      "codebook_usage@4": 0.999755859375,
-      "perplexity@5": 149.54292587445963,
-      "codebook_usage@5": 0.99951171875,
-      "perplexity_macro": 1018.6125565874374,
-      "codebook_usage_macro": 0.99970703125,
-      "perplexity_micro": 1380.6155062001585,
+      "perplexity@2": 93.47081110450078,
+      "codebook_usage@2": 0.6708984375,
+      "perplexity@3": 1.0,
+      "codebook_usage@3": 0.000244140625,
+      "perplexity@4": 1.0,
+      "codebook_usage@4": 0.000244140625,
+      "perplexity@5": 1.0,
+      "codebook_usage@5": 0.000244140625,
+      "perplexity_macro": 759.9845777522694,
+      "codebook_usage_macro": 0.334326171875,
+      "perplexity_micro": 28.429909924583097,
       "codebook_usage_micro": 1.0,
-      "total_tokens_micro": 119170
+      "total_tokens_micro": 28335
     },
     "length": {
       "fixed": 5
     },
     "distinctness": {
-      "n_items": 23834,
-      "n_unique_codes": 23714,
-      "unique_codes_per_item": 0.9949651757992783
+      "n_items": 5667,
+      "n_unique_codes": 5655,
+      "unique_codes_per_item": 0.9978824775013234
     }
   }
 }
