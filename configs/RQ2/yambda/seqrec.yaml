@@ -30,7 +30,7 @@ train:
 eval:
   beam_size: 100
   max_batch_tokens: 16384
-  max_batch_users: 512
+  max_batch_users: 256
   max_candidates: 100
   per_code_max_items: 10
   k_list: [1, 10, 100]

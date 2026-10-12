@@ -217,7 +217,13 @@ def run_eval(
         targets_df: pl.DataFrame,     # columns: user_id, item_id(list[int])
         head_items_df: pl.DataFrame,  # column: item_id
 ) -> Dict[str, float]:
-    max_seq_len = int(stats["pretrain_max_len_observed"])
+    # Cached beam search appends a complete semantic ID to each test prefix.
+    # The rotary table therefore needs positions for both, even when the
+    # longest test prefix is as long as (or longer than) any training sequence.
+    max_seq_len = max(
+        int(stats["pretrain_max_len_observed"]),
+        int(stats["test_max_len_observed"]) + int(stats["sid_len_max"]),
+    )
     vocab_size = int(stats["vocab_size"])
 
     depth = graph.depth
