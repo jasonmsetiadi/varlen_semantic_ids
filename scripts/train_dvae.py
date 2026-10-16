@@ -185,6 +185,16 @@ def main(cfg):
                 if beta_t is not None:
                     writer.add_scalar("params/beta", float(beta_t.item()), tokens_passed)
 
+            if global_step % cfg["log_every_steps"] == 0:
+                metric_values = " ".join(
+                    f"{name}={float(value):.4g}" for name, value in metrics.items()
+                )
+                beta_value = f" beta={beta_t.item():.4g}" if beta_t is not None else ""
+                tqdm.write(
+                    f"step={global_step}/{total_steps} epoch={epoch + 1}/{cfg['num_epochs']} "
+                    f"tokens={tokens_passed} tau={tau:.4g}{beta_value} {metric_values}"
+                )
+
             tokens_passed += int(getattr(batch, "size", 0))
             global_step += 1
             pbar.update(1)
@@ -204,6 +214,11 @@ def main(cfg):
                 if writer is not None:
                     for k, v in m.items():
                         writer.add_scalar(k, float(v), tokens_passed)
+                eval_values = " ".join(f"{name}={float(value):.4g}" for name, value in m.items())
+                tqdm.write(
+                    f"eval step={global_step}/{total_steps} epoch={epoch + 1}/{cfg['num_epochs']} "
+                    f"tokens={tokens_passed} {eval_values}"
+                )
                 graph.train()
 
             if global_step % cfg["progress_bar_every"] == 0:
