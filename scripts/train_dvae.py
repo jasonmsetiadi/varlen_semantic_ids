@@ -130,6 +130,12 @@ def main(cfg):
     total_steps = cfg["num_epochs"] * steps_per_epoch
     tokens_passed = 0
     global_step = 0
+    best_train_loss = float("inf")
+    best_train_epoch = 0
+    best_train_step = 0
+    best_validation_loss = float("inf")
+    best_validation_step = 0
+    best_validation_epoch = 0
 
     pbar = tqdm(
         total=total_steps,
@@ -177,6 +183,12 @@ def main(cfg):
 
             optimizer.step()
             optimizer.zero_grad(set_to_none=True)
+
+            train_loss = float(loss.detach())
+            if train_loss < best_train_loss:
+                best_train_loss = train_loss
+                best_train_epoch = epoch + 1
+                best_train_step = global_step + 1
 
             if writer is not None and (global_step % cfg["log_every_steps"] == 0):
                 for name, value in metrics.items():
@@ -229,6 +241,11 @@ def main(cfg):
                     batch_size=cfg["eval_batch_size"],
                     detail=cfg["eval_detail"],
                 )
+                validation_loss = m.get("recon/holdout_@last")
+                if validation_loss is not None and validation_loss < best_validation_loss:
+                    best_validation_loss = validation_loss
+                    best_validation_step = global_step
+                    best_validation_epoch = epoch + 1
                 if writer is not None:
                     for k, v in m.items():
                         writer.add_scalar(k, float(v), tokens_passed)
@@ -243,6 +260,17 @@ def main(cfg):
                 pbar.set_postfix(epoch=epoch, loss=float(loss))
 
     pbar.close()
+    tqdm.write(
+        f"best_train_loss={best_train_loss:.4g} "
+        f"epoch={best_train_epoch}/{cfg['num_epochs']} step={best_train_step}/{total_steps}"
+    )
+    if best_validation_loss < float("inf"):
+        tqdm.write(
+        f"best_validation_recon={best_validation_loss:.4g} "
+            f"metric=recon/holdout_@last "
+            f"epoch={best_validation_epoch}/{cfg['num_epochs']} "
+            f"step={best_validation_step}/{total_steps}"
+        )
 
     graph.eval()
     with torch.inference_mode():
