@@ -46,7 +46,7 @@ train_sample_frac_for_eval: 0.1111111111  # 1/9
 log_every_steps: 20
 eval_every_steps: 500
 eval_detail: false
-enable_progress_bar: true
+enable_progress_bar: false
 progress_bar_every: 20
 
 # evaluation
