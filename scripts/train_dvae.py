@@ -186,8 +186,23 @@ def main(cfg):
                     writer.add_scalar("params/beta", float(beta_t.item()), tokens_passed)
 
             if global_step % cfg["log_every_steps"] == 0:
+                metric_order = [
+                    "loss",
+                    "recon_loss",
+                    "vocab_loss",
+                    "KL_term",
+                    "length_loss",
+                    "KL_length_term",
+                    "E_L",
+                    "length_entropy",
+                ]
+                metric_order.extend(
+                    name for name in metrics
+                    if name.startswith("length_count@") or name.startswith("length_fraction@")
+                )
                 metric_values = " ".join(
-                    f"{name}={float(value):.4g}" for name, value in metrics.items()
+                    f"{name}={float(metrics[name]):.4g}"
+                    for name in metric_order if name in metrics
                 )
                 beta_value = f" beta={beta_t.item():.4g}" if beta_t is not None else ""
                 tqdm.write(
@@ -199,7 +214,7 @@ def main(cfg):
             global_step += 1
             pbar.update(1)
 
-            if writer is not None and cfg["eval_every_steps"] > 0 and (global_step % cfg["eval_every_steps"] == 0):
+            if cfg["eval_every_steps"] > 0 and (global_step % cfg["eval_every_steps"] == 0):
                 graph.eval()
                 m = evaluate_for_tb(
                     encoder=enc_inf,

@@ -657,11 +657,12 @@ def evaluate_split_for_tb(
             row = pop_stats.get(str(l))
             if row and "pop_mean" in row:
                 out[f"msg/{prefix}_avg_pop@{l}"] = float(row["pop_mean"])
+            if row:
+                out[f"msg/{prefix}_count@{l}"] = float(row["count"])
+                out[f"msg/{prefix}_fraction@{l}"] = float(row["count"]) / max(len(lengths_cpu), 1)
             if detail and row:
                 if "pop_max" in row:
                     out[f"msg/{prefix}_max_pop@{l}"] = float(row["pop_max"])
-                if "count" in row:
-                    out[f"msg/{prefix}_count@{l}"] = float(row["count"])
     else:
         pass
 

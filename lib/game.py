@@ -141,6 +141,7 @@ class VarlenGame(nn.Module):
                     'loss': loss,
                     'recon_loss': recon_loss.detach(),
                     'KL_term': KL_vocab_term.detach(),
+                    'KL_length_term': KL_length_term.detach(),
                     'H_Z_given_X': H_Z_given_X_total,
                     'H_Z': H_Z ,
                     'I_XZ': I_XZ,
@@ -149,6 +150,11 @@ class VarlenGame(nn.Module):
                     'E_L': E_L.detach(),
                     'length_entropy': length_entropy
                 }
+                discrete_lengths = length_probs.argmax(dim=-1)
+                length_counts = torch.bincount(discrete_lengths, minlength=T)
+                for step in range(T):
+                    metrics[f'length_count@{step + 1}'] = length_counts[step].detach()
+                    metrics[f'length_fraction@{step + 1}'] = (length_counts[step].float() / x.shape[0]).detach()
                 if free_bits is not None:
                     metrics['frac_under_fb'] = (KL_step < free_bits).float().mean(dim=0).sum()
                 if beta is not None:
