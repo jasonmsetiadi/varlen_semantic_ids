@@ -196,10 +196,7 @@ def main(cfg):
                     "E_L",
                     "length_entropy",
                 ]
-                metric_order.extend(
-                    name for name in metrics
-                    if name.startswith("length_count@") or name.startswith("length_fraction@")
-                )
+                metric_order.extend(name for name in metrics if name.startswith("length_fraction@"))
                 metric_values = " ".join(
                     f"{name}={float(metrics[name]):.4g}"
                     for name in metric_order if name in metrics
