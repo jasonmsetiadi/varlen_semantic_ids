@@ -196,11 +196,17 @@ def main(cfg):
                     "E_L",
                     "length_entropy",
                 ]
-                metric_order.extend(name for name in metrics if name.startswith("length_fraction@"))
                 metric_values = " ".join(
                     f"{name}={float(metrics[name]):.4g}"
                     for name in metric_order if name in metrics
                 )
+                if cfg["varlen"]:
+                    length_distribution = ", ".join(
+                        f"L{length}={float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
+                        for length in range(1, cfg["maxlen"] + 1)
+                        if f"length_fraction@{length}" in metrics
+                    )
+                    metric_values += f" {length_distribution}"
                 beta_value = f" beta={beta_t.item():.4g}" if beta_t is not None else ""
                 tqdm.write(
                     f"step={global_step}/{total_steps} epoch={epoch + 1}/{cfg['num_epochs']} "
