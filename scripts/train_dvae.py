@@ -133,6 +133,12 @@ def main(cfg):
     best_train_loss = float("inf")
     best_train_epoch = 0
     best_train_step = 0
+    best_epoch_train_loss = float("inf")
+    best_epoch = 0
+    early_stopping_patience = int(cfg.get("early_stopping_patience", 0))
+    early_stopping_min_delta = float(cfg.get("early_stopping_min_delta", 0.0))
+    epochs_without_improvement = 0
+    best_epoch_state = None
     best_validation_loss = float("inf")
     best_validation_step = 0
     best_validation_epoch = 0
@@ -146,6 +152,8 @@ def main(cfg):
 
     for epoch in range(cfg["num_epochs"]):
         graph.train()
+        epoch_loss_sum = 0.0
+        epoch_batches = 0
         for batch in dataloader:
             tau = get_cosine_scheduler(
                 global_step,
@@ -185,6 +193,8 @@ def main(cfg):
             optimizer.zero_grad(set_to_none=True)
 
             train_loss = float(loss.detach())
+            epoch_loss_sum += train_loss
+            epoch_batches += 1
             if train_loss < best_train_loss:
                 best_train_loss = train_loss
                 best_train_epoch = epoch + 1
@@ -259,11 +269,47 @@ def main(cfg):
             if global_step % cfg["progress_bar_every"] == 0:
                 pbar.set_postfix(epoch=epoch, loss=float(loss))
 
+        if epoch_batches > 0 and early_stopping_patience > 0:
+            epoch_train_loss = epoch_loss_sum / epoch_batches
+            if epoch_train_loss < best_epoch_train_loss - early_stopping_min_delta:
+                best_epoch_train_loss = epoch_train_loss
+                best_epoch = epoch + 1
+                epochs_without_improvement = 0
+                # Keep the best epoch's weights on CPU so early stopping can
+                # restore them without holding a second model copy on the GPU.
+                best_epoch_state = {
+                    name: value.detach().cpu().clone()
+                    for name, value in graph.state_dict().items()
+                }
+            else:
+                epochs_without_improvement += 1
+
+            tqdm.write(
+                f"epoch_end epoch={epoch + 1}/{cfg['num_epochs']} "
+                f"train_loss={epoch_train_loss:.6g} "
+                f"best_train_loss={best_epoch_train_loss:.6g}@{best_epoch} "
+                f"patience={epochs_without_improvement}/{early_stopping_patience}"
+            )
+            if epochs_without_improvement >= early_stopping_patience:
+                tqdm.write(
+                    f"early_stopping epoch={epoch + 1} "
+                    f"best_epoch={best_epoch} "
+                    f"best_train_loss={best_epoch_train_loss:.6g}"
+                )
+                break
+
     pbar.close()
+    if best_epoch_state is not None:
+        graph.load_state_dict(best_epoch_state)
     tqdm.write(
         f"best_train_loss={best_train_loss:.4g} "
         f"epoch={best_train_epoch}/{cfg['num_epochs']} step={best_train_step}/{total_steps}"
     )
+    if best_epoch > 0:
+        tqdm.write(
+            f"best_epoch_train_loss={best_epoch_train_loss:.6g} "
+            f"epoch={best_epoch}/{cfg['num_epochs']}"
+        )
     if best_validation_loss < float("inf"):
         tqdm.write(
         f"best_validation_recon={best_validation_loss:.4g} "

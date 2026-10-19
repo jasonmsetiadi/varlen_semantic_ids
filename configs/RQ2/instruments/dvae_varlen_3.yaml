@@ -5,7 +5,9 @@ device: "cuda"
 seed: 42
 mode: "train_holdout"
 out_dir: "./results/RQ2/instruments/dvae_varlen_3"
-num_epochs: 5
+num_epochs: 1461
+early_stopping_patience: 20
+early_stopping_min_delta: 0.0001
 vocab_size: 4096
 embed_dim: 128
 hidden_size: 128
