@@ -14,6 +14,7 @@ from lib.utils import configure_torch, encode_to_sids_df
 
 
 def _fit_rkmeans(items: pl.DataFrame, device: str, cfg: dict):
+    print(f"[train] Preparing {items.height:,} item embeddings on {device}...", flush=True)
     emb = items["embed"].to_torch().to(torch.float32).to(device, non_blocking=True)
     emb = F.normalize(emb, dim=-1).to(torch.bfloat16).contiguous()
 
@@ -22,8 +23,15 @@ def _fit_rkmeans(items: pl.DataFrame, device: str, cfg: dict):
         num_clusters=cfg["num_clusters"],
         num_iters=cfg["num_iters"],
         batch_size=cfg["fit_batch_size"],
+        verbose=True,
+    )
+    print(
+        f"[train] Fitting residual k-means: {q.num_levels} levels, "
+        f"{q.clusters_per_level} clusters, {q.num_iters} iterations max...",
+        flush=True,
     )
     q.fit(emb)
+    print("[train] Fitting complete; preparing encoder and decoder.", flush=True)
 
     encoder = RKMeansEncoder(q).inference()
     decoder = RKMeansDecoder(q).inference()
@@ -38,13 +46,20 @@ def main(cfg):
     mode = cfg.get("mode", "train")  # "train" | "train_holdout"
     id_col = cfg.get("id_col", "item_id")
 
+    print(f"[data] Loading item splits from {data_dir}...", flush=True)
     train_items = pl.read_parquet(os.path.join(data_dir, "dvae_train_items.parquet"))
     holdout_items = pl.read_parquet(os.path.join(data_dir, "dvae_holdout_items.parquet"))
     cold_items = pl.read_parquet(os.path.join(data_dir, "dvae_cold_items.parquet"))
+    print(
+        f"[data] Loaded train={train_items.height:,}, holdout={holdout_items.height:,}, "
+        f"cold={cold_items.height:,} items.",
+        flush=True,
+    )
 
     if mode == "train":
         encoder, decoder = _fit_rkmeans(train_items, device, cfg)
 
+        print("[eval] Evaluating train, holdout, and cold splits...", flush=True)
         metrics = ev.evaluate_all(
             train_items=train_items,
             holdout_items=holdout_items,
@@ -60,12 +75,14 @@ def main(cfg):
         os.makedirs(os.path.dirname(cfg["metrics_json_path"]) or ".", exist_ok=True)
         with open(cfg["metrics_json_path"], "w", encoding="utf-8") as f:
             json.dump(metrics, f, ensure_ascii=False, indent=2)
+        print(f"[done] Saved metrics: {cfg['metrics_json_path']}", flush=True)
 
     elif mode == "train_holdout":
         # ---- fit on train+holdout
         train_holdout = pl.concat([train_items, holdout_items], how="vertical", rechunk=True)
         encoder, decoder = _fit_rkmeans(train_holdout, device, cfg)
 
+        print(f"[eval] Evaluating train_holdout split ({train_holdout.height:,} items)...", flush=True)
         metrics = ev.evaluate_all(
             splits={"train_holdout": train_holdout},
             encoder=encoder,
@@ -91,9 +108,10 @@ def main(cfg):
             batch_size=cfg["eval_batch_size"],
             device=device,
         )
+        print(f"[save] Writing semantic IDs ({sids.height:,} items)...", flush=True)
         sids.write_parquet(sids_path)
-        print(f"Saved metrics: {metrics_path}")
-        print(f"Saved semantic IDs: {sids_path}")
+        print(f"[done] Saved metrics: {metrics_path}", flush=True)
+        print(f"[done] Saved semantic IDs: {sids_path}", flush=True)
 
     else:
         raise ValueError(f"Unknown mode={mode!r}. Expected 'train' or 'train_holdout'.")
