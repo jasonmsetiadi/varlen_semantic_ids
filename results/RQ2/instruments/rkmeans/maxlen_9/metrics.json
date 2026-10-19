@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "varlen": false,
+    "maxlen": 9,
+    "vocab_size": 4096,
+    "batch_size": 512,
+    "per_step": true,
+    "expected_holdout_frac": 0.01
+  },
+  "sanity": {
+    "train_holdout_items": 5667
+  },
+  "train_holdout": {
+    "n_items": 5667,
+    "recon": {
+      "uniform": {
+        "@1": 0.0405906164732395,
+        "@2": 1.775279531515188e-05,
+        "@3": 1.775279531515188e-05,
+        "@4": 1.775279531515188e-05,
+        "@5": 1.775279531515188e-05,
+        "@6": 1.775279531515188e-05,
+        "@7": 1.775279531515188e-05,
+        "@8": 1.775279531515188e-05,
+        "@9": 1.775279531515188e-05
+      },
+      "unigram": {
+        "@1": 0.04113722574513929,
+        "@2": 1.5851758866969136e-05,
+        "@3": 1.5851758866969136e-05,
+        "@4": 1.5851758866969136e-05,
+        "@5": 1.5851758866969136e-05,
+        "@6": 1.5851758866969136e-05,
+        "@7": 1.5851758866969136e-05,
+        "@8": 1.5851758866969136e-05,
+        "@9": 1.5851758866969136e-05
+      }
+    },
+    "codebook": {
+      "perplexity@1": 3707.371896591957,
+      "codebook_usage@1": 1.0,
+      "perplexity@2": 94.36339923860915,
+      "codebook_usage@2": 0.67236328125,
+      "perplexity@3": 1.0,
+      "codebook_usage@3": 0.000244140625,
+      "perplexity@4": 1.0,
+      "codebook_usage@4": 0.000244140625,
+      "perplexity@5": 1.0,
+      "codebook_usage@5": 0.000244140625,
+      "perplexity@6": 1.0,
+      "codebook_usage@6": 0.000244140625,
+      "perplexity@7": 1.0,
+      "codebook_usage@7": 0.000244140625,
+      "perplexity@8": 1.0,
+      "codebook_usage@8": 0.000244140625,
+      "perplexity@9": 1.0,
+      "codebook_usage@9": 0.000244140625,
+      "perplexity_macro": 423.19281064784064,
+      "codebook_usage_macro": 0.1860080295138889,
+      "perplexity_micro": 7.512214647873761,
+      "codebook_usage_micro": 1.0,
+      "total_tokens_micro": 51003
+    },
+    "length": {
+      "fixed": 9
+    },
+    "distinctness": {
+      "n_items": 5667,
+      "n_unique_codes": 5655,
+      "unique_codes_per_item": 0.9978824775013234
+    }
+  }
+}

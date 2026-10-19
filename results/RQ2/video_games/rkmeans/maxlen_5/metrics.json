@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "varlen": false,
+    "maxlen": 5,
+    "vocab_size": 4096,
+    "batch_size": 512,
+    "per_step": true,
+    "expected_holdout_frac": 0.01
+  },
+  "sanity": {
+    "train_holdout_items": 7728
+  },
+  "train_holdout": {
+    "n_items": 7728,
+    "recon": {
+      "uniform": {
+        "@1": 0.0638839579948974,
+        "@2": 0.010557732920839178,
+        "@3": 2.6810033290244333e-05,
+        "@4": 2.678090309762233e-05,
+        "@5": 2.6780439469987773e-05
+      },
+      "unigram": {
+        "@1": 0.060525930378578,
+        "@2": 0.01000544323809283,
+        "@3": 2.057024314916237e-05,
+        "@4": 2.054560801445967e-05,
+        "@5": 2.0545228647836234e-05
+      }
+    },
+    "codebook": {
+      "perplexity@1": 3440.7844519010114,
+      "codebook_usage@1": 1.0,
+      "perplexity@2": 612.9746913522625,
+      "codebook_usage@2": 0.999755859375,
+      "perplexity@3": 20.28517736146882,
+      "codebook_usage@3": 0.48095703125,
+      "perplexity@4": 1.0245433734505143,
+      "codebook_usage@4": 0.001708984375,
+      "perplexity@5": 1.0068533243105977,
+      "codebook_usage@5": 0.000732421875,
+      "perplexity_macro": 815.2151434625008,
+      "codebook_usage_macro": 0.496630859375,
+      "perplexity_micro": 92.67361176535721,
+      "codebook_usage_micro": 1.0,
+      "total_tokens_micro": 38640
+    },
+    "length": {
+      "fixed": 5
+    },
+    "distinctness": {
+      "n_items": 7728,
+      "n_unique_codes": 7683,
+      "unique_codes_per_item": 0.9941770186335404
+    }
+  }
+}
