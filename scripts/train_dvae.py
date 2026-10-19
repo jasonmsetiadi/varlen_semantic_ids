@@ -378,8 +378,13 @@ def main(cfg):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
+    ap.add_argument("--max-length", type=int, required=True)
     args = ap.parse_args()
 
     with open(args.config, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
+    if args.max_length < 1:
+        ap.error("--max-length must be at least 1")
+    cfg["maxlen"] = args.max_length
+    cfg["out_dir"] = os.path.join(cfg["out_dir"], f"maxlen_{args.max_length}")
     main(cfg)

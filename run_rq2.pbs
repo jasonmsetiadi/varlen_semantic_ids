@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#PBS -l select=1:ncpus=1:mem=8gb:ngpus=1
+#PBS -l walltime=12:00:00
+#PBS -M jason.setiadi@unsw.edu.au
+#PBS -m ae
+#PBS -j oe
+
+set -euo pipefail
+
+if [[ -n "${PBS_O_WORKDIR:-}" ]]; then
+  cd "$PBS_O_WORKDIR"
+fi
+
+if [[ -n "${HF_HOME:-}" ]]; then
+  mkdir -p "$HF_HOME"
+fi
+
+: "${DATASET:?DATASET must be passed to the job}"
+: "${TOKENIZER:?TOKENIZER must be passed to the job}"
+: "${MAX_LENGTH:?MAX_LENGTH must be passed to the job}"
+
+bash run_rq2.sh "$DATASET" "$TOKENIZER" "$MAX_LENGTH"
