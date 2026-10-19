@@ -272,6 +272,7 @@ def run_eval(
         ),
         desc="beam_search_batched",
         dynamic_ncols=True,
+        disable=True,
     ):
         tokens_BT = torch.tensor(token_lists, dtype=torch.long, device="cuda")
 

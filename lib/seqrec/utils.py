@@ -70,7 +70,7 @@ def train_loop(
         os.mkdir(checkpoint_dir)
 
     tokens_passed = 0
-    for step in tqdm.tqdm(range(num_iterations - 1), total=num_iterations - 1):
+    for step in tqdm.tqdm(range(num_iterations - 1), total=num_iterations - 1, disable=True):
         last_step = step == num_iterations - 2
         if eval_every != -1 and (last_step or step % eval_every == 0):
             assert valid_dataloaders is not None or custom_validation is not None
