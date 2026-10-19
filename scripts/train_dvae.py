@@ -364,11 +364,14 @@ def main(cfg):
             device=device,
         )
         sids.write_parquet(sids_path)
+        print(f"Saved metrics: {metrics_path}")
+        print(f"Saved semantic IDs: {sids_path}")
     else:
         # Backward-compatible behavior for plain train mode
         os.makedirs(os.path.dirname(cfg["metrics_json_path"]) or ".", exist_ok=True)
         with open(cfg["metrics_json_path"], "w", encoding="utf-8") as f:
             json.dump(metrics, f, ensure_ascii=False, indent=2)
+        print(f"Saved metrics: {cfg['metrics_json_path']}")
 
     if cfg.get("save_weights_path") is not None:
         os.makedirs(os.path.dirname(cfg["save_weights_path"]) or ".", exist_ok=True)

@@ -92,6 +92,8 @@ def main(cfg):
             device=device,
         )
         sids.write_parquet(sids_path)
+        print(f"Saved metrics: {metrics_path}")
+        print(f"Saved semantic IDs: {sids_path}")
 
     else:
         raise ValueError(f"Unknown mode={mode!r}. Expected 'train' or 'train_holdout'.")
