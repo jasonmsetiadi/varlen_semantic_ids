@@ -18,8 +18,14 @@ METRICS = [
     "long_tail_share", "mean_candidate_sid_length",
 ]
 
+METHOD_DIRS = {
+    "dvae": "dvae",
+    "varlen_dvae": "dvae_varlen_3",
+    "rkmeans": "rkmeans",
+}
 
-def load_row(method: str, path: Path) -> dict:
+
+def load_row(method: str, max_length: int, path: Path) -> dict:
     if not path.exists():
         raise FileNotFoundError(f"Missing result file for {method}: {path}")
 
@@ -27,22 +33,25 @@ def load_row(method: str, path: Path) -> dict:
         result = json.load(f)
 
     metrics = result.get("metrics", result)
-    return {"method": method, **{key: metrics.get(key) for key in METRICS}}
-
-
-def resolve_result(results_dir: Path, method: str) -> Path:
-    candidates = {
-        "dvae": ("seqrec_dvae.json", "dvae.json"),
-        "varlen_dvae": ("seqrec_varlen_dvae.json", "seqrec_dvae_varlen.json"),
-        "rkmeans": ("seqrec_rkmeans.json", "rkmeans.json"),
+    return {
+        "method": method,
+        "max_length": max_length,
+        **{key: metrics.get(key) for key in METRICS},
     }
-    for filename in candidates[method]:
-        path = results_dir / filename
+
+
+def discover_results(results_dir: Path, method: str) -> list[tuple[int, Path]]:
+    method_dir = results_dir / METHOD_DIRS[method]
+    results = []
+    for length_dir in method_dir.glob("maxlen_*"):
+        try:
+            max_length = int(length_dir.name.removeprefix("maxlen_"))
+        except ValueError:
+            continue
+        path = length_dir / "seqrec.json"
         if path.exists():
-            return path
-    raise FileNotFoundError(
-        f"Could not find sequential-recommendation results for {method} under {results_dir}."
-    )
+            results.append((max_length, path))
+    return sorted(results)
 
 
 def main() -> None:
@@ -56,11 +65,17 @@ def main() -> None:
     output_path = args.output or str(results_dir / "seqrec_comparison.csv")
     experiments = ("dvae", "varlen_dvae", "rkmeans")
 
-    rows = [load_row(method, resolve_result(results_dir, method)) for method in experiments]
+    rows = []
+    for method in experiments:
+        for max_length, path in discover_results(results_dir, method):
+            rows.append(load_row(method, max_length, path))
+    rows.sort(key=lambda row: (row["max_length"], experiments.index(row["method"])))
+    if not rows:
+        raise FileNotFoundError(f"No maxlen_*/seqrec.json results found under {results_dir}")
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = ["method", *METRICS]
+    fieldnames = ["method", "max_length", *METRICS]
     with output.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()

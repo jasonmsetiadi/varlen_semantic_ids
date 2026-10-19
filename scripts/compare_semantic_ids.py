@@ -7,7 +7,14 @@ import json
 from pathlib import Path
 
 
-def get_metrics(method: str, path: Path) -> list[dict]:
+METHOD_DIRS = {
+    "dvae": "dvae",
+    "varlen_dvae": "dvae_varlen_3",
+    "rkmeans": "rkmeans",
+}
+
+
+def get_metrics(method: str, max_length: int, path: Path) -> list[dict]:
     if not path.exists():
         raise FileNotFoundError(f"Missing result file for {method}: {path}")
 
@@ -30,8 +37,9 @@ def get_metrics(method: str, path: Path) -> list[dict]:
 
         rows.append({
             "method": method,
+            "max_length": max_length,
             "split": split,
-            "recon_at_last": recon.get("@last", recon.get("@5")),
+            "recon_at_last": recon.get("@last", recon.get(f"@{max_length}")),
             "recon_at_5": recon.get("@5"),
             "recon_varlen": recon.get("@varlen"),
             "perplexity": codebook.get("perplexity_macro"),
@@ -44,21 +52,18 @@ def get_metrics(method: str, path: Path) -> list[dict]:
     return rows
 
 
-def resolve_result(results_dir: Path, method: str) -> Path:
-    """Resolve the canonical nested tokenizer metrics file."""
-    method_dirs = {
-        "dvae": "dvae",
-        "varlen_dvae": "dvae_varlen_3",
-        "rkmeans": "rkmeans",
-    }
-    path = results_dir / method_dirs[method] / "metrics.json"
-    if path.exists():
-        return path
-
-    raise FileNotFoundError(
-        f"Missing tokenizer metrics for {method}: {path}. "
-        "Expected results/<method>/metrics.json."
-    )
+def discover_results(results_dir: Path, method: str) -> list[tuple[int, Path]]:
+    method_dir = results_dir / METHOD_DIRS[method]
+    results = []
+    for length_dir in method_dir.glob("maxlen_*"):
+        try:
+            max_length = int(length_dir.name.removeprefix("maxlen_"))
+        except ValueError:
+            continue
+        path = length_dir / "metrics.json"
+        if path.exists():
+            results.append((max_length, path))
+    return sorted(results)
 
 
 def main() -> None:
@@ -74,11 +79,21 @@ def main() -> None:
 
     rows = []
     for method in experiments:
-        rows.extend(get_metrics(method, resolve_result(results_dir, method)))
+        for max_length, path in discover_results(results_dir, method):
+            rows.extend(get_metrics(method, max_length, path))
+    rows.sort(
+        key=lambda row: (
+            row["max_length"],
+            experiments.index(row["method"]),
+            row["split"],
+        )
+    )
+    if not rows:
+        raise FileNotFoundError(f"No maxlen_*/metrics.json results found under {results_dir}")
 
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = list(rows[0]) if rows else ["method", "split"]
+    fieldnames = list(rows[0]) if rows else ["method", "max_length", "split"]
     with output.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
