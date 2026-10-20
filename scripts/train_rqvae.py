@@ -214,9 +214,19 @@ def main(cfg: dict) -> None:
                 best_train_step = global_step + 1
 
             if global_step % cfg["log_every_steps"] == 0:
-                metric_values = " ".join(
-                    f"{name}={float(value):.4g}" for name, value in metrics.items()
-                )
+                metric_parts = []
+                for name, value in metrics.items():
+                    if name.startswith("length_fraction@"):
+                        continue
+                    metric_parts.append(f"{name}={float(value):.4g}")
+                    if name == "length_entropy" and model.varlen:
+                        length_distribution = ", ".join(
+                            f"L{length}="
+                            f"{float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
+                            for length in range(1, model.maxlen + 1)
+                        )
+                        metric_parts.append(length_distribution)
+                metric_values = " ".join(metric_parts)
                 tqdm.write(
                     f"step={global_step}/{total_steps} epoch={epoch + 1}/{cfg['num_epochs']} "
                     f"tokens={tokens_passed} {metric_values}"
