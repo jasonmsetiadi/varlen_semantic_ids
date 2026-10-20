@@ -11,6 +11,7 @@ METHOD_DIRS = {
     "dvae": "dvae",
     "varlen_dvae": "dvae_varlen_3",
     "rkmeans": "rkmeans",
+    "rqvae": "rqvae",
 }
 
 
@@ -75,7 +76,7 @@ def main() -> None:
 
     results_dir = Path(args.results_dir or f"results/RQ2/{args.dataset}")
     output_path = args.output or str(results_dir / "semantic_id_comparison.csv")
-    experiments = ("dvae", "varlen_dvae", "rkmeans")
+    experiments = ("dvae", "varlen_dvae", "rkmeans", "rqvae")
 
     rows = []
     for method in experiments:
