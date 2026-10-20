@@ -23,6 +23,7 @@ METHOD_DIRS = {
     "varlen_dvae": "dvae_varlen_3",
     "rkmeans": "rkmeans",
     "rqvae": "rqvae",
+    "varlen_rqvae": "rqvae_varlen_3",
 }
 
 
@@ -64,7 +65,7 @@ def main() -> None:
 
     results_dir = Path(args.results_dir or f"results/RQ2/{args.dataset}")
     output_path = args.output or str(results_dir / "seqrec_comparison.csv")
-    experiments = ("dvae", "varlen_dvae", "rkmeans", "rqvae")
+    experiments = ("dvae", "varlen_dvae", "rkmeans", "rqvae", "varlen_rqvae")
 
     rows = []
     for method in experiments:

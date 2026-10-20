@@ -12,7 +12,12 @@ from tqdm.auto import tqdm
 from lib.data import EventsDataset
 from lib.evaluate import evaluate_all, evaluate_for_tb
 from lib.rqvae import RQVAE
-from lib.utils import configure_torch, encode_to_sids_df
+from lib.utils import (
+    configure_torch,
+    encode_to_sids_df,
+    get_cosine_scheduler,
+    get_fractional_warmup_steps,
+)
 
 
 def _autocast(device: str):
@@ -98,6 +103,9 @@ def main(cfg: dict) -> None:
         quantization_loss_weight=cfg.get("quantization_loss_weight", 1.0),
         reconstruction_loss_weight=cfg.get("reconstruction_loss_weight", 1.0),
         distance_batch_size=cfg["distance_batch_size"],
+        varlen=cfg.get("varlen", False),
+        stop_num_heads=cfg.get("stop_num_heads", 1),
+        stop_dropout=cfg.get("stop_dropout", 0.1),
     ).to(device)
 
     print(
@@ -111,7 +119,7 @@ def main(cfg: dict) -> None:
         encode_batch_size=cfg.get("init_encode_batch_size", cfg["eval_batch_size"]),
     )
 
-    encoder = model.inference_encoder()
+    encoder = model.inference_encoder(mode=cfg.get("length_inference", "argmax"))
     decoder = model.inference_decoder()
 
     compile_setting = cfg.get("compile", "auto")
@@ -147,6 +155,12 @@ def main(cfg: dict) -> None:
 
     steps_per_epoch = len(dataloader)
     total_steps = cfg["num_epochs"] * steps_per_epoch
+    length_beta_warmup_steps = None
+    if model.varlen:
+        warmup_fraction = float(cfg.get("length_beta_warmup_fraction", 0.2))
+        length_beta_warmup_steps = get_fractional_warmup_steps(
+            total_steps, warmup_fraction
+        )
     tokens_passed = 0
     global_step = 0
     best_train_loss = float("inf")
@@ -171,8 +185,22 @@ def main(cfg: dict) -> None:
         epoch_loss_sum = 0.0
         epoch_batches = 0
         for batch in dataloader:
+            forward_kwargs = {}
+            if model.varlen:
+                length_beta = get_cosine_scheduler(
+                    global_step,
+                    start=float(cfg["length_beta_start"]),
+                    end=float(cfg["length_beta_end"]),
+                    total_steps=length_beta_warmup_steps,
+                )
+                forward_kwargs = {
+                    "length_cost": torch.tensor(
+                        float(cfg["length_cost"]), device=device
+                    ),
+                    "length_beta": torch.tensor(length_beta, device=device),
+                }
             with _autocast(device):
-                loss, metrics = graph(batch.embeddings)
+                loss, metrics = graph(batch.embeddings, **forward_kwargs)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad(set_to_none=True)

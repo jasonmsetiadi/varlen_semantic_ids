@@ -94,3 +94,11 @@ def get_cosine_scheduler(step, start, end, total_steps):
         return end + 0.5 * (start - end) * (1. + math.cos(math.pi * progress))
     else:
         return start + 0.5 * (end - start) * (1. - math.cos(math.pi * progress))
+
+
+def get_fractional_warmup_steps(total_steps: int, fraction: float) -> int:
+    if total_steps < 1:
+        raise ValueError("total_steps must be positive")
+    if not 0.0 < fraction <= 1.0:
+        raise ValueError("warmup fraction must be in (0, 1]")
+    return max(1, round(total_steps * fraction))

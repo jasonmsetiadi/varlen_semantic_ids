@@ -23,7 +23,7 @@ def _mlp(
 
 
 class RQVAE(nn.Module):
-    """Fixed-length residual-quantized autoencoder for semantic IDs."""
+    """Residual-quantized autoencoder for fixed- or variable-length IDs."""
 
     def __init__(
         self,
@@ -36,6 +36,9 @@ class RQVAE(nn.Module):
         quantization_loss_weight: float = 1.0,
         reconstruction_loss_weight: float = 1.0,
         distance_batch_size: int = 512,
+        varlen: bool = False,
+        stop_num_heads: int = 1,
+        stop_dropout: float = 0.1,
     ) -> None:
         super().__init__()
         if input_dim < 1 or latent_dim < 1:
@@ -44,6 +47,10 @@ class RQVAE(nn.Module):
             raise ValueError("vocab_size and maxlen must be positive")
         if distance_batch_size < 1:
             raise ValueError("distance_batch_size must be positive")
+        if stop_num_heads < 1:
+            raise ValueError("stop_num_heads must be positive")
+        if latent_dim % stop_num_heads != 0:
+            raise ValueError("latent_dim must be divisible by stop_num_heads")
 
         self.input_dim = int(input_dim)
         self.latent_dim = int(latent_dim)
@@ -53,6 +60,7 @@ class RQVAE(nn.Module):
         self.quantization_loss_weight = float(quantization_loss_weight)
         self.reconstruction_loss_weight = float(reconstruction_loss_weight)
         self.distance_batch_size = int(distance_batch_size)
+        self._varlen = bool(varlen)
 
         hidden_dims = [int(dim) for dim in hidden_dims]
         if any(dim < 1 for dim in hidden_dims):
@@ -65,9 +73,58 @@ class RQVAE(nn.Module):
         )
         nn.init.normal_(self.codebooks, mean=0.0, std=0.02)
 
+        if self._varlen and self.maxlen > 1:
+            self.stop_backbone = nn.Sequential(
+                nn.Linear(self.input_dim, self.latent_dim),
+                nn.LayerNorm(self.latent_dim),
+                nn.GELU(),
+            )
+            self.stop_positions = nn.Parameter(
+                torch.empty(self.maxlen, self.latent_dim)
+            )
+            nn.init.normal_(self.stop_positions, mean=0.0, std=0.02)
+            self.stop_transformer = nn.TransformerEncoderLayer(
+                d_model=self.latent_dim,
+                nhead=int(stop_num_heads),
+                dim_feedforward=4 * self.latent_dim,
+                dropout=float(stop_dropout),
+                activation="gelu",
+                batch_first=True,
+                norm_first=True,
+            )
+            self.stop_norm = nn.LayerNorm(self.latent_dim)
+            self.stop_predictor = nn.Linear(self.latent_dim, 1)
+            self.stop_bias = nn.Parameter(torch.zeros(self.maxlen - 1))
+
     @property
     def varlen(self) -> bool:
-        return False
+        return self._varlen
+
+    @staticmethod
+    def _process_stop_logits(
+        stop_logits: torch.Tensor,
+        return_survival_logits: bool = False,
+    ):
+        """Convert conditional stop hazards into length probabilities."""
+        log_cont = F.logsigmoid(-stop_logits)
+        survival_after = torch.cumsum(log_cont, dim=-1)
+        length_logits = torch.cat(
+            [
+                survival_after - log_cont + F.logsigmoid(stop_logits),
+                survival_after[..., -1:],
+            ],
+            dim=-1,
+        )
+        if return_survival_logits:
+            survival_logits = torch.cat(
+                [
+                    survival_after.new_zeros(survival_after.shape[:-1] + (1,)),
+                    survival_after,
+                ],
+                dim=-1,
+            )
+            return length_logits, survival_logits
+        return length_logits
 
     @staticmethod
     def _squared_euclidean(x: torch.Tensor, codebook: torch.Tensor) -> torch.Tensor:
@@ -104,60 +161,188 @@ class RQVAE(nn.Module):
 
     def _quantize(
         self, latent: torch.Tensor
-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, list[torch.Tensor]]:
+    ) -> tuple[
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+        torch.Tensor,
+    ]:
         residual = latent
         hard_sum = torch.zeros_like(latent)
         codes = []
+        hard_prefixes = []
+        residual_states = []
         codebook_losses = []
         commitment_losses = []
-        per_level_losses = []
 
         for level in range(self.maxlen):
             codebook = self.codebooks[level]
             level_codes = self.nearest_codes(residual, codebook)
             quantized = F.embedding(level_codes, codebook)
 
-            codebook_loss = F.mse_loss(quantized, residual.detach())
-            commitment_loss = self.commitment_beta * F.mse_loss(
-                residual, quantized.detach()
-            )
-            level_loss = codebook_loss + commitment_loss
+            codebook_loss = (quantized - residual.detach()).square().mean(dim=-1)
+            commitment_loss = self.commitment_beta * (
+                residual - quantized.detach()
+            ).square().mean(dim=-1)
 
             codes.append(level_codes)
             codebook_losses.append(codebook_loss)
             commitment_losses.append(commitment_loss)
-            per_level_losses.append(level_loss)
             hard_sum = hard_sum + quantized
+            hard_prefixes.append(hard_sum)
 
             # Later residual losses should train the encoder but not earlier
             # codebooks. Codebooks receive gradients from their own codebook loss.
             residual = residual - quantized.detach()
+            residual_states.append(residual)
 
         return (
             torch.stack(codes, dim=-1),
-            hard_sum,
-            torch.stack(codebook_losses).sum(),
-            torch.stack(commitment_losses).sum(),
-            per_level_losses,
+            torch.stack(hard_prefixes, dim=1),
+            torch.stack(residual_states, dim=1),
+            torch.stack(codebook_losses, dim=1),
+            torch.stack(commitment_losses, dim=1),
+        )
+
+    def _length_outputs(
+        self,
+        x: torch.Tensor,
+        residual_states: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        if not self._varlen:
+            raise RuntimeError("Length outputs are only available when varlen=True")
+        if self.maxlen == 1:
+            zeros = x.new_zeros((x.size(0), 1), dtype=torch.float32)
+            return zeros, zeros
+
+        initial = self.stop_backbone(x).unsqueeze(1)
+        stop_states = torch.cat([initial, residual_states[:, :-1]], dim=1)
+        stop_states = stop_states + self.stop_positions[None].to(stop_states.dtype)
+        causal_mask = torch.triu(
+            torch.ones(
+                self.maxlen,
+                self.maxlen,
+                device=x.device,
+                dtype=torch.bool,
+            ),
+            diagonal=1,
+        )
+        stop_hidden = self.stop_transformer(stop_states, src_mask=causal_mask)
+        stop_hidden = self.stop_norm(stop_hidden)
+        stop_logits = (
+            self.stop_predictor(stop_hidden[:, 1:]).squeeze(dim=-1)
+            + self.stop_bias[None]
+        )
+        return self._process_stop_logits(
+            stop_logits.float(), return_survival_logits=True
         )
 
     def forward(
-        self, x: torch.Tensor
+        self,
+        x: torch.Tensor,
+        length_cost: torch.Tensor | float | None = None,
+        length_beta: torch.Tensor | float | None = None,
     ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         if x.ndim != 2 or x.size(1) != self.input_dim:
             raise ValueError(f"Expected x [B,{self.input_dim}], got {tuple(x.shape)}")
 
         target = F.normalize(x.float(), dim=-1)
         latent = self.encoder(x)
-        _, hard_sum, codebook_loss, commitment_loss, per_level = self._quantize(
-            latent
-        )
+        (
+            _,
+            hard_prefixes,
+            residual_states,
+            codebook_losses,
+            commitment_losses,
+        ) = self._quantize(latent)
+
+        if self._varlen:
+            if length_cost is None or length_beta is None:
+                raise ValueError(
+                    "length_cost and length_beta are required when varlen=True"
+                )
+            prefix_st = latent[:, None] + (hard_prefixes - latent[:, None]).detach()
+            flat_prefixes = prefix_st.reshape(-1, self.latent_dim)
+            reconstructions = F.normalize(
+                self.decoder(flat_prefixes).float(), dim=-1
+            ).view(x.size(0), self.maxlen, self.input_dim)
+
+            length_logits, _ = self._length_outputs(x, residual_states)
+            length_probs = length_logits.softmax(dim=-1)
+            length_logprobs = length_logits.log_softmax(dim=-1)
+            smoothed_length_probs = 0.9 * length_probs + 0.1 / self.maxlen
+            alive = length_probs.flip(dims=(-1,)).cumsum(dim=-1).flip(dims=(-1,))
+
+            reconstruction_per_level = (
+                reconstructions - target[:, None]
+            ).square().mean(dim=-1)
+            reconstruction_loss = (
+                smoothed_length_probs * reconstruction_per_level
+            ).sum(dim=-1).mean()
+            codebook_loss = (alive * codebook_losses).sum(dim=-1).mean()
+            commitment_loss = (alive * commitment_losses).sum(dim=-1).mean()
+            quantization_loss = codebook_loss + commitment_loss
+
+            lengths = torch.arange(
+                1,
+                self.maxlen + 1,
+                device=length_probs.device,
+                dtype=length_probs.dtype,
+            )
+            expected_length = (length_probs * lengths[None]).sum(dim=-1).mean()
+            length_entropy = -(
+                length_probs * length_logprobs
+            ).sum(dim=-1).mean()
+            length_cost_tensor = torch.as_tensor(
+                length_cost, device=x.device, dtype=length_probs.dtype
+            )
+            length_beta_tensor = torch.as_tensor(
+                length_beta, device=x.device, dtype=length_probs.dtype
+            )
+            length_term = -length_entropy + length_cost_tensor * expected_length
+            length_loss = length_beta_tensor * length_term
+            loss = (
+                self.reconstruction_loss_weight * reconstruction_loss
+                + self.quantization_loss_weight * quantization_loss
+                + length_loss
+            )
+
+            metrics: dict[str, torch.Tensor] = {
+                "loss": loss.detach(),
+                "recon_loss": reconstruction_loss.detach(),
+                "quantization_loss": quantization_loss.detach(),
+                "codebook_loss": codebook_loss.detach(),
+                "commitment_loss": commitment_loss.detach(),
+                "length_term": length_term.detach(),
+                "length_loss": length_loss.detach(),
+                "length_beta": length_beta_tensor.detach(),
+                "E_L": expected_length.detach(),
+                "length_entropy": length_entropy.detach(),
+            }
+            discrete_lengths = length_probs.argmax(dim=-1)
+            length_counts = torch.bincount(
+                discrete_lengths, minlength=self.maxlen
+            )
+            for level in range(self.maxlen):
+                raw_level_loss = (
+                    codebook_losses[:, level] + commitment_losses[:, level]
+                ).mean()
+                metrics[f"quantization_loss@{level + 1}"] = raw_level_loss.detach()
+                metrics[f"survival@{level + 1}"] = alive[:, level].mean().detach()
+                metrics[f"length_fraction@{level + 1}"] = (
+                    length_counts[level].float() / x.size(0)
+                ).detach()
+            return loss, metrics
 
         # The forward value is the hard sum, while the reconstruction gradient
         # with respect to the encoder is the identity straight-through estimate.
+        hard_sum = hard_prefixes[:, -1]
         quantized_st = latent + (hard_sum - latent).detach()
         reconstruction = F.normalize(self.decoder(quantized_st).float(), dim=-1)
         reconstruction_loss = F.mse_loss(reconstruction, target)
+        codebook_loss = codebook_losses.sum(dim=-1).mean()
+        commitment_loss = commitment_losses.sum(dim=-1).mean()
         quantization_loss = codebook_loss + commitment_loss
         loss = (
             self.reconstruction_loss_weight * reconstruction_loss
@@ -171,23 +356,41 @@ class RQVAE(nn.Module):
             "codebook_loss": codebook_loss.detach(),
             "commitment_loss": commitment_loss.detach(),
         }
-        for level, level_loss in enumerate(per_level, start=1):
-            metrics[f"quantization_loss@{level}"] = level_loss.detach()
+        for level in range(self.maxlen):
+            level_loss = (
+                codebook_losses[:, level] + commitment_losses[:, level]
+            ).mean()
+            metrics[f"quantization_loss@{level + 1}"] = level_loss.detach()
         return loss, metrics
 
     @torch.no_grad()
-    def encode(self, x: torch.Tensor) -> torch.Tensor:
+    def encode(self, x: torch.Tensor, length_mode: str = "argmax"):
         if x.ndim != 2 or x.size(1) != self.input_dim:
             raise ValueError(f"Expected x [B,{self.input_dim}], got {tuple(x.shape)}")
         latent = self.encoder(x)
-        residual = latent
-        codes = []
-        for level in range(self.maxlen):
-            level_codes = self.nearest_codes(residual, self.codebooks[level])
-            quantized = F.embedding(level_codes, self.codebooks[level])
-            codes.append(level_codes)
-            residual = residual - quantized
-        return torch.stack(codes, dim=-1).to(torch.long)
+        codes, _, residual_states, _, _ = self._quantize(latent)
+        codes = codes.to(torch.long)
+        if not self._varlen:
+            return codes
+
+        length_logits, _ = self._length_outputs(x, residual_states)
+        if length_mode == "argmax":
+            lengths = length_logits.argmax(dim=-1) + 1
+        elif length_mode == "mean":
+            probs = length_logits.softmax(dim=-1)
+            values = torch.arange(
+                1,
+                self.maxlen + 1,
+                device=probs.device,
+                dtype=probs.dtype,
+            )
+            lengths = (probs * values[None]).sum(dim=-1).round().to(torch.long)
+        elif length_mode == "median":
+            cdf = length_logits.softmax(dim=-1).cumsum(dim=-1)
+            lengths = (cdf >= 0.5).to(torch.long).argmax(dim=-1) + 1
+        else:
+            raise ValueError(f"Unknown length inference mode: {length_mode!r}")
+        return codes, lengths.clamp(1, self.maxlen)
 
     @torch.no_grad()
     def decode_prefixes(self, codes: torch.Tensor) -> torch.Tensor:
@@ -277,17 +480,20 @@ class RQVAE(nn.Module):
 
         self.train(was_training)
 
-    def inference_encoder(self) -> "RQVAEInferenceEncoder":
-        return RQVAEInferenceEncoder(self)
+    def inference_encoder(self, mode: str = "argmax") -> "RQVAEInferenceEncoder":
+        return RQVAEInferenceEncoder(self, mode=mode)
 
     def inference_decoder(self) -> "RQVAEInferenceDecoder":
         return RQVAEInferenceDecoder(self)
 
 
 class RQVAEInferenceEncoder(nn.Module):
-    def __init__(self, model: RQVAE) -> None:
+    def __init__(self, model: RQVAE, mode: str = "argmax") -> None:
         super().__init__()
         self.model = model
+        if mode not in {"argmax", "mean", "median"}:
+            raise ValueError(f"Unknown length inference mode: {mode!r}")
+        self.mode = mode
 
     @property
     def vocab_size(self) -> int:
@@ -299,10 +505,10 @@ class RQVAEInferenceEncoder(nn.Module):
 
     @property
     def varlen(self) -> bool:
-        return False
+        return self.model.varlen
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model.encode(x)
+    def forward(self, x: torch.Tensor):
+        return self.model.encode(x, length_mode=self.mode)
 
 
 class RQVAEInferenceDecoder(nn.Module):

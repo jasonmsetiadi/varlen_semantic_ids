@@ -10,7 +10,12 @@ import torch.nn.functional as F
 from tqdm.auto import tqdm
 
 from lib.data import EventsDataset
-from lib.utils import get_cosine_scheduler, configure_torch, encode_to_sids_df
+from lib.utils import (
+    configure_torch,
+    encode_to_sids_df,
+    get_cosine_scheduler,
+    get_fractional_warmup_steps,
+)
 from lib.layers import Encoder, Decoder
 from lib.game import Game, VarlenGame
 from lib.evaluate import evaluate_all, evaluate_for_tb
@@ -128,6 +133,11 @@ def main(cfg):
 
     steps_per_epoch = len(dataloader)
     total_steps = cfg["num_epochs"] * steps_per_epoch
+    beta_schedule_steps = steps_per_epoch
+    if cfg["varlen"] and cfg.get("beta_warmup_fraction") is not None:
+        beta_schedule_steps = get_fractional_warmup_steps(
+            total_steps, float(cfg["beta_warmup_fraction"])
+        )
     tokens_passed = 0
     global_step = 0
     best_train_loss = float("inf")
@@ -168,7 +178,7 @@ def main(cfg):
                     global_step,
                     start=cfg["beta_start"],
                     end=cfg["beta_end"],
-                    total_steps=steps_per_epoch,
+                    total_steps=beta_schedule_steps,
                 )
                 beta_t = torch.tensor(b, device=device)
 

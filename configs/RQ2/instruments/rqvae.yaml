@@ -5,7 +5,7 @@ device: "cuda"
 seed: 42
 mode: "train_holdout"
 out_dir: "./results/RQ2/instruments/rqvae"
-num_epochs: 1461
+num_epochs: 750
 early_stopping_patience: 20
 early_stopping_min_delta: 0.0001
 vocab_size: 256
@@ -13,6 +13,7 @@ embed_dim: 128
 hidden_dims: [128]
 latent_dim: 64
 maxlen: 5
+varlen: false
 commitment_beta: 0.25
 quantization_loss_weight: 1.0
 reconstruction_loss_weight: 1.0
