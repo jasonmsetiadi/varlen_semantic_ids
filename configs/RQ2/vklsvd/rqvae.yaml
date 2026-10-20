@@ -6,7 +6,7 @@ seed: 42
 mode: "train_holdout"
 out_dir: "./results/RQ2/vklsvd/rqvae"
 num_epochs: 5
-vocab_size: 4096
+vocab_size: 256
 embed_dim: 64
 hidden_dims: [64]
 latent_dim: 64
