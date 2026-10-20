@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "varlen": false,
+    "maxlen": 3,
+    "vocab_size": 256,
+    "batch_size": 512,
+    "per_step": true,
+    "expected_holdout_frac": 0.01
+  },
+  "sanity": {
+    "train_holdout_items": 268054,
+    "cold_items": 30899
+  },
+  "train_holdout": {
+    "n_items": 268054,
+    "recon_head_longtail": {
+      "head": {
+        "uniform": {
+          "@last": 0.12345309272607168
+        },
+        "unigram": {
+          "@last": 0.10118652732334926
+        }
+      },
+      "longtail": {
+        "uniform": {
+          "@last": 0.1608894174270651
+        },
+        "unigram": {
+          "@last": 0.14968357986098285
+        }
+      }
+    },
+    "recon": {
+      "uniform": {
+        "@1": 0.36776344209774464,
+        "@2": 0.21726783207618833,
+        "@3": 0.15669962790714184
+      },
+      "unigram": {
+        "@1": 0.29995186332055096,
+        "@2": 0.1658768357525984,
+        "@3": 0.1134641785559338
+      }
+    },
+    "codebook": {
+      "perplexity@1": 227.4692330249697,
+      "codebook_usage@1": 0.984375,
+      "perplexity@2": 238.38279887986448,
+      "codebook_usage@2": 1.0,
+      "perplexity@3": 243.8670247332079,
+      "codebook_usage@3": 1.0,
+      "perplexity_macro": 236.57301887934736,
+      "codebook_usage_macro": 0.9947916666666666,
+      "perplexity_micro": 249.470056258263,
+      "codebook_usage_micro": 1.0,
+      "total_tokens_micro": 804162
+    },
+    "length": {
+      "fixed": 3
+    },
+    "distinctness": {
+      "n_items": 268054,
+      "n_unique_codes": 202737,
+      "unique_codes_per_item": 0.756328948644676
+    }
+  },
+  "cold": {
+    "n_items": 30899,
+    "recon": {
+      "uniform": {
+        "@1": 0.48660892123732197,
+        "@2": 0.3105424263511353,
+        "@3": 0.23404227491682675
+      },
+      "unigram": {
+        "@1": 0.3813298755403258,
+        "@2": 0.23427854319171995,
+        "@3": 0.17251543615352707
+      }
+    },
+    "codebook": {
+      "perplexity@1": 162.1550611549714,
+      "codebook_usage@1": 0.984375,
+      "perplexity@2": 200.41107787900313,
+      "codebook_usage@2": 1.0,
+      "perplexity@3": 216.11155182397133,
+      "codebook_usage@3": 1.0,
+      "perplexity_macro": 192.8925636193153,
+      "codebook_usage_macro": 0.9947916666666666,
+      "perplexity_micro": 229.8538629619124,
+      "codebook_usage_micro": 1.0,
+      "total_tokens_micro": 92697
+    },
+    "length": {
+      "fixed": 3
+    },
+    "distinctness": {
+      "n_items": 30899,
+      "n_unique_codes": 26858,
+      "unique_codes_per_item": 0.8692190685782711
+    }
+  }
+}
