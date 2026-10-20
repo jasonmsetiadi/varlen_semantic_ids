@@ -12,12 +12,14 @@ tokenizers=(
   "rkmeans"
   "dvae"
   "rqvae"
+  "varlen_rqvae"
 )
 
 max_lengths=(
+  3
   5
-  10
-  20
+  7
+  9
 )
 
 PBS_SCRIPT="${PBS_SCRIPT:-run_rq2.pbs}"

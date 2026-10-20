@@ -56,8 +56,14 @@ case "$TOKENIZER" in
     TOKENIZER_RESULTS="rqvae"
     TOKENIZER_LABEL="RQ-VAE"
     ;;
+  varlen_rqvae)
+    TOKENIZER_MODULE="train_rqvae"
+    TOKENIZER_CONFIG="rqvae_varlen_3.yaml"
+    TOKENIZER_RESULTS="rqvae_varlen_3"
+    TOKENIZER_LABEL="variable-length RQ-VAE"
+    ;;
   *)
-    echo "Unknown tokenizer: $TOKENIZER (choose dvae, varlen_dvae, rkmeans, or rqvae)" >&2
+    echo "Unknown tokenizer: $TOKENIZER (choose dvae, varlen_dvae, rkmeans, rqvae, or varlen_rqvae)" >&2
     exit 2
     ;;
 esac
