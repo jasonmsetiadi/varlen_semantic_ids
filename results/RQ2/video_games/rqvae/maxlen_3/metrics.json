@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "varlen": false,
+    "maxlen": 3,
+    "vocab_size": 256,
+    "batch_size": 512,
+    "per_step": true,
+    "expected_holdout_frac": 0.01
+  },
+  "sanity": {
+    "train_holdout_items": 7728,
+    "cold_items": 1573
+  },
+  "train_holdout": {
+    "n_items": 7728,
+    "recon": {
+      "uniform": {
+        "@1": 0.3620443669905573,
+        "@2": 0.33871711583858194,
+        "@3": 0.33129535303846397
+      },
+      "unigram": {
+        "@1": 0.3366952290545691,
+        "@2": 0.31279305709655153,
+        "@3": 0.30570622573196876
+      }
+    },
+    "codebook": {
+      "perplexity@1": 12.179943777063793,
+      "codebook_usage@1": 0.0546875,
+      "perplexity@2": 126.72895609944733,
+      "codebook_usage@2": 0.6328125,
+      "perplexity@3": 85.48002126740303,
+      "codebook_usage@3": 0.42578125,
+      "perplexity_macro": 74.79630704797138,
+      "codebook_usage_macro": 0.37109375,
+      "perplexity_micro": 117.03127099684237,
+      "codebook_usage_micro": 0.796875,
+      "total_tokens_micro": 23184
+    },
+    "length": {
+      "fixed": 3
+    },
+    "distinctness": {
+      "n_items": 7728,
+      "n_unique_codes": 6880,
+      "unique_codes_per_item": 0.8902691511387164
+    }
+  },
+  "cold": {
+    "n_items": 1573,
+    "recon": {
+      "uniform": {
+        "@1": 0.440943180188508,
+        "@2": 0.41345742244441547,
+        "@3": 0.4045726184396323
+      },
+      "unigram": {
+        "@1": 0.43518792846113824,
+        "@2": 0.408027562902807,
+        "@3": 0.39930574603190383
+      }
+    },
+    "codebook": {
+      "perplexity@1": 5.273340315732348,
+      "codebook_usage@1": 0.05078125,
+      "perplexity@2": 103.28563641804558,
+      "codebook_usage@2": 0.57421875,
+      "perplexity@3": 81.5622027867702,
+      "codebook_usage@3": 0.390625,
+      "perplexity_macro": 63.37372650684938,
+      "codebook_usage_macro": 0.3385416666666667,
+      "perplexity_micro": 83.4325014026163,
+      "codebook_usage_micro": 0.75390625,
+      "total_tokens_micro": 4719
+    },
+    "length": {
+      "fixed": 3
+    },
+    "distinctness": {
+      "n_items": 1573,
+      "n_unique_codes": 1375,
+      "unique_codes_per_item": 0.8741258741258742
+    }
+  }
+}

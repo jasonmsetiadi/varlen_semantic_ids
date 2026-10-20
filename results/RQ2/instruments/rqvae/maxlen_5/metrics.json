@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "varlen": false,
+    "maxlen": 5,
+    "vocab_size": 256,
+    "batch_size": 512,
+    "per_step": true,
+    "expected_holdout_frac": 0.01
+  },
+  "sanity": {
+    "train_holdout_items": 5667,
+    "cold_items": 1021
+  },
+  "train_holdout": {
+    "n_items": 5667,
+    "recon": {
+      "uniform": {
+        "@1": 0.4371158462869062,
+        "@2": 0.36771980795213227,
+        "@3": 0.34640530949234644,
+        "@4": 0.33293502848678863,
+        "@5": 0.3233538819974916
+      },
+      "unigram": {
+        "@1": 0.4191674754067331,
+        "@2": 0.3345466366249188,
+        "@3": 0.3141329550009821,
+        "@4": 0.3023231576056626,
+        "@5": 0.29424635926821846
+      }
+    },
+    "codebook": {
+      "perplexity@1": 4.650268547375395,
+      "codebook_usage@1": 0.01953125,
+      "perplexity@2": 144.2371562101219,
+      "codebook_usage@2": 0.71875,
+      "perplexity@3": 140.6333164046632,
+      "codebook_usage@3": 0.6953125,
+      "perplexity@4": 123.51819907131396,
+      "codebook_usage@4": 0.64453125,
+      "perplexity@5": 118.2686744476139,
+      "codebook_usage@5": 0.640625,
+      "perplexity_macro": 106.26152293621767,
+      "codebook_usage_macro": 0.54375,
+      "perplexity_micro": 158.99555299579404,
+      "codebook_usage_micro": 0.99609375,
+      "total_tokens_micro": 28335
+    },
+    "length": {
+      "fixed": 5
+    },
+    "distinctness": {
+      "n_items": 5667,
+      "n_unique_codes": 5630,
+      "unique_codes_per_item": 0.9934709722957473
+    }
+  },
+  "cold": {
+    "n_items": 1021,
+    "recon": {
+      "uniform": {
+        "@1": 0.4885049608848933,
+        "@2": 0.41888345537176286,
+        "@3": 0.3961815007403124,
+        "@4": 0.38169733807809403,
+        "@5": 0.3705777907114651
+      },
+      "unigram": {
+        "@1": 0.48536332417188216,
+        "@2": 0.41207281966400855,
+        "@3": 0.3894461726114865,
+        "@4": 0.37503160108665257,
+        "@5": 0.3641411074228311
+      }
+    },
+    "codebook": {
+      "perplexity@1": 3.795938150622723,
+      "codebook_usage@1": 0.01953125,
+      "perplexity@2": 77.09816073906336,
+      "codebook_usage@2": 0.56640625,
+      "perplexity@3": 116.25698042470039,
+      "codebook_usage@3": 0.6015625,
+      "perplexity@4": 103.40780756912723,
+      "codebook_usage@4": 0.5546875,
+      "perplexity@5": 100.90649857238209,
+      "codebook_usage@5": 0.5625,
+      "perplexity_macro": 80.29307709117916,
+      "codebook_usage_macro": 0.4609375,
+      "perplexity_micro": 137.4059045770691,
+      "codebook_usage_micro": 0.97265625,
+      "total_tokens_micro": 5105
+    },
+    "length": {
+      "fixed": 5
+    },
+    "distinctness": {
+      "n_items": 1021,
+      "n_unique_codes": 1014,
+      "unique_codes_per_item": 0.9931439764936337
+    }
+  }
+}
