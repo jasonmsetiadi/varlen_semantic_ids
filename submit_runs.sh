@@ -11,6 +11,7 @@ tokenizers=(
   "varlen_dvae"
   "rkmeans"
   "dvae"
+  "rqvae"
 )
 
 max_lengths=(
