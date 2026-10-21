@@ -12,6 +12,7 @@ from tqdm.auto import tqdm
 from lib.data import EventsDataset
 from lib.evaluate import evaluate_all, evaluate_for_tb
 from lib.rqvae import RQVAE
+from lib.run_logging import tee_run_output
 from lib.utils import (
     configure_torch,
     encode_to_sids_df,
@@ -370,4 +371,7 @@ if __name__ == "__main__":
         parser.error("--max-length must be at least 1")
     config["maxlen"] = args.max_length
     config["out_dir"] = os.path.join(config["out_dir"], f"maxlen_{args.max_length}")
-    main(config)
+    log_path = os.path.join(config["out_dir"], "train.log")
+    with tee_run_output(log_path):
+        print(f"[log] Saving run output to {log_path}", flush=True)
+        main(config)

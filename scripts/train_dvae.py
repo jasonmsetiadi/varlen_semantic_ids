@@ -19,6 +19,7 @@ from lib.utils import (
 from lib.layers import Encoder, Decoder
 from lib.game import Game, VarlenGame
 from lib.evaluate import evaluate_all, evaluate_for_tb
+from lib.run_logging import tee_run_output
 import lib.evaluate as ev
 
 
@@ -406,4 +407,7 @@ if __name__ == "__main__":
         ap.error("--max-length must be at least 1")
     cfg["maxlen"] = args.max_length
     cfg["out_dir"] = os.path.join(cfg["out_dir"], f"maxlen_{args.max_length}")
-    main(cfg)
+    log_path = os.path.join(cfg["out_dir"], "train.log")
+    with tee_run_output(log_path):
+        print(f"[log] Saving run output to {log_path}", flush=True)
+        main(cfg)
