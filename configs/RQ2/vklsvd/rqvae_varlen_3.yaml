@@ -21,7 +21,7 @@ stop_num_heads: 1
 stop_dropout: 0.1
 length_cost: 12.0
 length_beta_start: 0.0
-length_beta_end: 0.00003125
+length_beta_end: 0.002
 length_beta_warmup_fraction: 0.2
 length_inference: "argmax"
 compile: auto
