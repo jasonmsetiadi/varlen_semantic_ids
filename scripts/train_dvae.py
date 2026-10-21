@@ -134,7 +134,7 @@ def main(cfg):
     steps_per_epoch = len(dataloader)
     total_steps = cfg["num_epochs"] * steps_per_epoch
     beta_schedule_steps = steps_per_epoch
-    if cfg["varlen"] and cfg.get("beta_warmup_fraction") is not None:
+    if cfg.get("beta_warmup_fraction") is not None:
         beta_schedule_steps = get_fractional_warmup_steps(
             total_steps, float(cfg["beta_warmup_fraction"])
         )

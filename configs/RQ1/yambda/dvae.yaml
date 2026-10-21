@@ -37,6 +37,7 @@ tau_end: 0.5
 
 beta_start: 0.0
 beta_end: 0.002
+beta_warmup_fraction: 0.2
 free_bits: 2.0
 
 # logging
