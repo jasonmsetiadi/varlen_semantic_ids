@@ -333,6 +333,9 @@ class RQVAE(nn.Module):
                 metrics[f"length_fraction@{level + 1}"] = (
                     length_counts[level].float() / x.size(0)
                 ).detach()
+                metrics[f"length_probability@{level + 1}"] = (
+                    length_probs[:, level].mean().detach()
+                )
             return loss, metrics
 
         # The forward value is the hard sum, while the reconstruction gradient

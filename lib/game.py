@@ -154,6 +154,7 @@ class VarlenGame(nn.Module):
                 length_counts = torch.bincount(discrete_lengths, minlength=T)
                 for step in range(T):
                     metrics[f'length_fraction@{step + 1}'] = (length_counts[step].float() / x.shape[0]).detach()
+                    metrics[f'length_probability@{step + 1}'] = length_probs[:, step].mean().detach()
                 if free_bits is not None:
                     metrics['frac_under_fb'] = (KL_step < free_bits).float().mean(dim=0).sum()
                 if beta is not None:

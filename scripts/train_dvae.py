@@ -234,7 +234,8 @@ def main(cfg):
                 )
                 if cfg["varlen"]:
                     length_distribution = ", ".join(
-                        f"L{length}={float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
+                        f"L{length}:p={float(metrics[f'length_probability@{length}']) * 100:.2f}%"
+                        f"/argmax={float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
                         for length in range(1, cfg["maxlen"] + 1)
                         if f"length_fraction@{length}" in metrics
                     )

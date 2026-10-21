@@ -216,13 +216,14 @@ def main(cfg: dict) -> None:
             if global_step % cfg["log_every_steps"] == 0:
                 metric_parts = []
                 for name, value in metrics.items():
-                    if name.startswith("length_fraction@"):
+                    if name.startswith(("length_fraction@", "length_probability@")):
                         continue
                     metric_parts.append(f"{name}={float(value):.4g}")
                     if name == "length_entropy" and model.varlen:
                         length_distribution = ", ".join(
                             f"L{length}="
-                            f"{float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
+                            f"p:{float(metrics[f'length_probability@{length}']) * 100:.2f}%/"
+                            f"argmax:{float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
                             for length in range(1, model.maxlen + 1)
                         )
                         metric_parts.append(length_distribution)
