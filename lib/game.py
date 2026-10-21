@@ -99,8 +99,10 @@ class VarlenGame(nn.Module):
             alive_mean = alive.mean(dim=0)
 
             recon_loss = 0.0
+            recon_loss_per_step = []
             for step in range(T):
                 step_loss = self.loss_fn(x.float(), receiver_output[:, step, ...].float())
+                recon_loss_per_step.append(step_loss)
                 recon_loss = recon_loss + (smoothed_length_probs[:, step] * step_loss).mean()
 
             q_logprobs = logits.log_softmax(dim=-1)
@@ -153,6 +155,7 @@ class VarlenGame(nn.Module):
                 discrete_lengths = length_probs.argmax(dim=-1)
                 length_counts = torch.bincount(discrete_lengths, minlength=T)
                 for step in range(T):
+                    metrics[f'recon_loss@{step + 1}'] = recon_loss_per_step[step].mean().detach()
                     metrics[f'length_fraction@{step + 1}'] = (length_counts[step].float() / x.shape[0]).detach()
                     metrics[f'length_probability@{step + 1}'] = length_probs[:, step].mean().detach()
                 if free_bits is not None:

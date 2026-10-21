@@ -325,6 +325,9 @@ class RQVAE(nn.Module):
                 discrete_lengths, minlength=self.maxlen
             )
             for level in range(self.maxlen):
+                metrics[f"recon_loss@{level + 1}"] = (
+                    reconstruction_per_level[:, level].mean().detach()
+                )
                 raw_level_loss = (
                     codebook_losses[:, level] + commitment_losses[:, level]
                 ).mean()

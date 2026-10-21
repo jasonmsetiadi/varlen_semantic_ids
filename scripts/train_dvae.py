@@ -228,6 +228,11 @@ def main(cfg):
                     "E_L",
                     "length_entropy",
                 ]
+                if cfg["varlen"]:
+                    metric_order.extend(
+                        f"recon_loss@{length}"
+                        for length in range(1, cfg["maxlen"] + 1)
+                    )
                 metric_values = " ".join(
                     f"{name}={float(metrics[name]):.4g}"
                     for name in metric_order if name in metrics
