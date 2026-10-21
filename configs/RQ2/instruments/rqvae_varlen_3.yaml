@@ -22,7 +22,7 @@ stop_dropout: 0.1
 length_cost: 5.0
 length_beta_start: 0.0
 length_beta_end: 0.000015625
-length_beta_warmup_fraction: 0.05
+length_beta_warmup_fraction: 0.2
 length_inference: "argmax"
 compile: auto
 batch_num_tokens: 8192

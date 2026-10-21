@@ -29,7 +29,7 @@ tau_start: 1.0
 tau_end: 0.5
 beta_start: 0.0
 beta_end: 0.002
-beta_warmup_fraction: 0.05
+beta_warmup_fraction: 0.2
 free_bits: 2.0
 train_sample_frac_for_eval: 0.1111111111
 log_every_steps: 20
