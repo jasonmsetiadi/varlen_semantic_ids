@@ -1,0 +1,137 @@
+[log] Saving run output to ./results/RQ2/yambda/rkmeans/maxlen_3/train.log
+[data] Loading item splits from ./data/yambda...
+[data] Loaded train=241,249, holdout=26,805, cold=30,899 items.
+[train] Preparing 268,054 item embeddings on cuda...
+[train] Fitting residual k-means: 3 levels, [4096, 4096, 4096] clusters, 40 iterations max...
+
+[RQ] Level 1/3, K=4096
+[kmeans] iter 0, max shift = 1.421875
+[kmeans] iter 1, max shift = 1.453125
+[kmeans] iter 2, max shift = 1.468750
+[kmeans] iter 3, max shift = 0.216797
+[kmeans] iter 4, max shift = 0.145508
+[kmeans] iter 5, max shift = 0.152344
+[kmeans] iter 6, max shift = 0.138672
+[kmeans] iter 7, max shift = 0.108887
+[kmeans] iter 8, max shift = 0.099121
+[kmeans] iter 9, max shift = 0.097656
+[kmeans] iter 10, max shift = 0.143555
+[kmeans] iter 11, max shift = 0.085938
+[kmeans] iter 12, max shift = 0.132812
+[kmeans] iter 13, max shift = 0.133789
+[kmeans] iter 14, max shift = 0.124512
+[kmeans] iter 15, max shift = 0.087891
+[kmeans] iter 16, max shift = 0.102051
+[kmeans] iter 17, max shift = 0.079590
+[kmeans] iter 18, max shift = 0.113281
+[kmeans] iter 19, max shift = 0.084473
+[kmeans] iter 20, max shift = 0.057861
+[kmeans] iter 21, max shift = 0.071289
+[kmeans] iter 22, max shift = 0.055908
+[kmeans] iter 23, max shift = 0.098633
+[kmeans] iter 24, max shift = 0.102539
+[kmeans] iter 25, max shift = 0.103516
+[kmeans] iter 26, max shift = 0.056641
+[kmeans] iter 27, max shift = 0.057129
+[kmeans] iter 28, max shift = 0.077148
+[kmeans] iter 29, max shift = 0.093750
+[kmeans] iter 30, max shift = 0.063477
+[kmeans] iter 31, max shift = 1.476562
+[kmeans] iter 32, max shift = 0.202148
+[kmeans] iter 33, max shift = 0.087402
+[kmeans] iter 34, max shift = 0.051270
+[kmeans] iter 35, max shift = 0.121582
+[kmeans] iter 36, max shift = 0.116211
+[kmeans] iter 37, max shift = 0.102539
+[kmeans] iter 38, max shift = 0.094727
+[kmeans] iter 39, max shift = 0.043457
+
+[RQ] Level 2/3, K=4096
+[kmeans] iter 0, max shift = 0.369141
+[kmeans] iter 1, max shift = 0.222656
+[kmeans] iter 2, max shift = 0.214844
+[kmeans] iter 3, max shift = 0.275391
+[kmeans] iter 4, max shift = 0.145508
+[kmeans] iter 5, max shift = 0.207031
+[kmeans] iter 6, max shift = 0.134766
+[kmeans] iter 7, max shift = 0.187500
+[kmeans] iter 8, max shift = 0.106934
+[kmeans] iter 9, max shift = 0.134766
+[kmeans] iter 10, max shift = 0.103516
+[kmeans] iter 11, max shift = 0.148438
+[kmeans] iter 12, max shift = 0.251953
+[kmeans] iter 13, max shift = 0.076172
+[kmeans] iter 14, max shift = 0.102051
+[kmeans] iter 15, max shift = 0.101074
+[kmeans] iter 16, max shift = 0.069336
+[kmeans] iter 17, max shift = 0.125000
+[kmeans] iter 18, max shift = 0.072266
+[kmeans] iter 19, max shift = 0.176758
+[kmeans] iter 20, max shift = 0.051270
+[kmeans] iter 21, max shift = 0.048584
+[kmeans] iter 22, max shift = 0.037109
+[kmeans] iter 23, max shift = 0.064453
+[kmeans] iter 24, max shift = 0.073730
+[kmeans] iter 25, max shift = 0.087402
+[kmeans] iter 26, max shift = 0.065430
+[kmeans] iter 27, max shift = 0.046875
+[kmeans] iter 28, max shift = 0.101074
+[kmeans] iter 29, max shift = 0.038818
+[kmeans] iter 30, max shift = 0.029419
+[kmeans] iter 31, max shift = 0.034180
+[kmeans] iter 32, max shift = 0.040771
+[kmeans] iter 33, max shift = 0.030884
+[kmeans] iter 34, max shift = 0.033936
+[kmeans] iter 35, max shift = 0.039307
+[kmeans] iter 36, max shift = 0.046631
+[kmeans] iter 37, max shift = 0.141602
+[kmeans] iter 38, max shift = 0.034668
+[kmeans] iter 39, max shift = 0.034912
+
+[RQ] Level 3/3, K=4096
+[kmeans] iter 0, max shift = 0.441406
+[kmeans] iter 1, max shift = 0.240234
+[kmeans] iter 2, max shift = 0.287109
+[kmeans] iter 3, max shift = 0.151367
+[kmeans] iter 4, max shift = 0.146484
+[kmeans] iter 5, max shift = 0.160156
+[kmeans] iter 6, max shift = 0.126953
+[kmeans] iter 7, max shift = 0.149414
+[kmeans] iter 8, max shift = 0.191406
+[kmeans] iter 9, max shift = 0.108398
+[kmeans] iter 10, max shift = 0.166992
+[kmeans] iter 11, max shift = 0.083984
+[kmeans] iter 12, max shift = 0.255859
+[kmeans] iter 13, max shift = 0.162109
+[kmeans] iter 14, max shift = 0.067871
+[kmeans] iter 15, max shift = 0.077637
+[kmeans] iter 16, max shift = 0.062500
+[kmeans] iter 17, max shift = 0.055664
+[kmeans] iter 18, max shift = 0.052979
+[kmeans] iter 19, max shift = 0.060059
+[kmeans] iter 20, max shift = 0.140625
+[kmeans] iter 21, max shift = 0.105957
+[kmeans] iter 22, max shift = 0.147461
+[kmeans] iter 23, max shift = 0.135742
+[kmeans] iter 24, max shift = 0.069336
+[kmeans] iter 25, max shift = 0.066406
+[kmeans] iter 26, max shift = 0.062256
+[kmeans] iter 27, max shift = 0.080078
+[kmeans] iter 28, max shift = 0.057373
+[kmeans] iter 29, max shift = 0.060303
+[kmeans] iter 30, max shift = 0.048340
+[kmeans] iter 31, max shift = 0.108398
+[kmeans] iter 32, max shift = 0.052246
+[kmeans] iter 33, max shift = 0.033447
+[kmeans] iter 34, max shift = 0.029541
+[kmeans] iter 35, max shift = 0.029175
+[kmeans] iter 36, max shift = 0.033203
+[kmeans] iter 37, max shift = 0.040283
+[kmeans] iter 38, max shift = 0.038330
+[kmeans] iter 39, max shift = 0.034180
+[RQ] fit done. Total params in codebooks: 1572864
+[train] Fitting complete; preparing encoder and decoder.
+[eval] Evaluating train_holdout split (268,054 items)...
+[save] Writing semantic IDs (268,054 items)...
+[done] Saved metrics: ./results/RQ2/yambda/rkmeans/maxlen_3/metrics.json
+[done] Saved semantic IDs: ./results/RQ2/yambda/rkmeans/maxlen_3/sids.parquet
