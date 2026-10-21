@@ -280,8 +280,9 @@ class RQVAE(nn.Module):
             reconstruction_loss = (
                 smoothed_length_probs * reconstruction_per_level
             ).sum(dim=-1).mean()
-            codebook_loss = (alive * codebook_losses).sum(dim=-1).mean()
-            commitment_loss = (alive * commitment_losses).sum(dim=-1).mean()
+            quantization_alive = alive.detach()
+            codebook_loss = (quantization_alive * codebook_losses).sum(dim=-1).mean()
+            commitment_loss = (quantization_alive * commitment_losses).sum(dim=-1).mean()
             quantization_loss = codebook_loss + commitment_loss
 
             lengths = torch.arange(
