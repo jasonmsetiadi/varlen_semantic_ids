@@ -12,8 +12,8 @@
         10,
         100
       ],
-      "max_batch_tokens": 16384,
-      "max_batch_users": 256,
+      "max_batch_tokens": 8192,
+      "max_batch_users": 128,
       "max_candidates": 100,
       "per_code_max_items": 10
     },
@@ -50,23 +50,23 @@
     "user_start_token": 0
   },
   "metrics": {
-    "coverage@1": 2.0,
-    "coverage@10": 15.0,
-    "coverage@100": 134.0,
-    "head_ndcg@1": 0.003710575139146554,
-    "head_ndcg@10": 0.011115912725478204,
-    "head_ndcg@100": 0.02362026379652577,
-    "head_recall@1": 0.003710575139146554,
-    "head_recall@10": 0.02292605353829837,
-    "head_recall@100": 0.08839120063609875,
+    "coverage@1": 5.0,
+    "coverage@10": 23.0,
+    "coverage@100": 154.0,
+    "head_ndcg@1": 0.0,
+    "head_ndcg@10": 0.0037372385509053135,
+    "head_ndcg@100": 0.008616547901437649,
+    "head_recall@1": 0.0,
+    "head_recall@10": 0.007686191359660723,
+    "head_recall@100": 0.03525046382189237,
     "long_tail_share": 0.0,
     "mean_candidate_sid_length": 8.0,
-    "ndcg@1": 0.0037105751391465565,
-    "ndcg@10": 0.011115912725478188,
-    "ndcg@100": 0.023620263796525813,
-    "recall@1": 0.0037105751391465565,
-    "recall@10": 0.022926053538298425,
-    "recall@100": 0.08839120063609887,
+    "ndcg@1": 0.0,
+    "ndcg@10": 0.003737238550905314,
+    "ndcg@100": 0.008616547901437684,
+    "recall@1": 0.0,
+    "recall@10": 0.007686191359660749,
+    "recall@100": 0.03525046382189244,
     "tail_ndcg@1": 0.0,
     "tail_ndcg@10": 0.0,
     "tail_ndcg@100": 0.0,
@@ -111,6 +111,6 @@
     "unique_token_offset": 258,
     "user_col": "user_id",
     "user_start_token": 0,
-    "vocab_size": 260
+    "vocab_size": 264
   }
 }
