@@ -5,7 +5,7 @@ device: "cuda"
 seed: 42
 mode: "train_holdout"
 out_dir: "./results/RQ2/instruments/dvae"
-num_epochs: 750
+num_epochs: 1000
 vocab_size: 4096
 embed_dim: 128
 hidden_size: 128
