@@ -271,6 +271,9 @@ class RQVAE(nn.Module):
             length_logits, _ = self._length_outputs(x, residual_states)
             length_probs = length_logits.softmax(dim=-1)
             length_logprobs = length_logits.log_softmax(dim=-1)
+            length_beta_tensor = torch.as_tensor(
+                length_beta, device=x.device, dtype=length_probs.dtype
+            )
             smoothed_length_probs = 0.9 * length_probs + 0.1 / self.maxlen
             alive = length_probs.flip(dims=(-1,)).cumsum(dim=-1).flip(dims=(-1,))
 
@@ -280,7 +283,11 @@ class RQVAE(nn.Module):
             reconstruction_loss = (
                 smoothed_length_probs * reconstruction_per_level
             ).sum(dim=-1).mean()
-            quantization_alive = alive.detach()
+            # Preserve full quantization gradients to the encoder/codebooks,
+            # while warming up its gradient through survival into the stopper.
+            quantization_alive = alive.detach() + length_beta_tensor * (
+                alive - alive.detach()
+            )
             codebook_loss = (quantization_alive * codebook_losses).sum(dim=-1).mean()
             commitment_loss = (quantization_alive * commitment_losses).sum(dim=-1).mean()
             quantization_loss = codebook_loss + commitment_loss
@@ -297,9 +304,6 @@ class RQVAE(nn.Module):
             ).sum(dim=-1).mean()
             length_cost_tensor = torch.as_tensor(
                 length_cost, device=x.device, dtype=length_probs.dtype
-            )
-            length_beta_tensor = torch.as_tensor(
-                length_beta, device=x.device, dtype=length_probs.dtype
             )
             length_term = -length_entropy + length_cost_tensor * expected_length
             length_loss = length_beta_tensor * length_term
