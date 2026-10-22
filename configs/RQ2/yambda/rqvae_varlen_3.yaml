@@ -19,7 +19,7 @@ distance_batch_size: 512
 init_encode_batch_size: 512
 stop_num_heads: 1
 stop_dropout: 0.1
-length_cost: 5.0
+length_cost: 1.0
 length_beta_start: 0.0
 length_beta_end: 0.002
 length_beta_warmup_fraction: 0.2
