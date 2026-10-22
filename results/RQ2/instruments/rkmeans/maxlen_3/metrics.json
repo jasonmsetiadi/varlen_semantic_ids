@@ -14,26 +14,26 @@
     "n_items": 5667,
     "recon": {
       "uniform": {
-        "@1": 0.04010000890664833,
-        "@2": 2.5327572482186117e-05,
-        "@3": 2.5327572482186117e-05
+        "@1": 0.04028862410801647,
+        "@2": 2.616305826413845e-06,
+        "@3": 2.616305826413845e-06
       },
       "unigram": {
-        "@1": 0.039337923948982424,
-        "@2": 1.2304751332722108e-05,
-        "@3": 1.2304751332722108e-05
+        "@1": 0.03963759250570338,
+        "@2": 2.592028866001184e-06,
+        "@3": 2.592028866001184e-06
       }
     },
     "codebook": {
-      "perplexity@1": 3704.6005499064136,
+      "perplexity@1": 3703.0459594849,
       "codebook_usage@1": 1.0,
-      "perplexity@2": 93.44794852984256,
-      "codebook_usage@2": 0.670654296875,
+      "perplexity@2": 94.11098227276489,
+      "codebook_usage@2": 0.67236328125,
       "perplexity@3": 1.0,
       "codebook_usage@3": 0.000244140625,
-      "perplexity_macro": 1266.349499478752,
-      "codebook_usage_macro": 0.5569661458333334,
-      "perplexity_micro": 163.09741728543918,
+      "perplexity_macro": 1266.0523139192217,
+      "codebook_usage_macro": 0.5575358072916666,
+      "perplexity_micro": 163.35439503478554,
       "codebook_usage_micro": 1.0,
       "total_tokens_micro": 17001
     },
@@ -42,8 +42,8 @@
     },
     "distinctness": {
       "n_items": 5667,
-      "n_unique_codes": 5654,
-      "unique_codes_per_item": 0.9977060172931004
+      "n_unique_codes": 5655,
+      "unique_codes_per_item": 0.9978824775013234
     }
   }
 }

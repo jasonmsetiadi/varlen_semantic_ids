@@ -10,10 +10,16 @@ import torch.nn.functional as F
 from tqdm.auto import tqdm
 
 from lib.data import EventsDataset
-from lib.utils import get_cosine_scheduler, configure_torch, encode_to_sids_df
+from lib.utils import (
+    configure_torch,
+    encode_to_sids_df,
+    get_cosine_scheduler,
+    get_fractional_warmup_steps,
+)
 from lib.layers import Encoder, Decoder
 from lib.game import Game, VarlenGame
 from lib.evaluate import evaluate_all, evaluate_for_tb
+from lib.run_logging import tee_run_output
 import lib.evaluate as ev
 
 
@@ -128,6 +134,11 @@ def main(cfg):
 
     steps_per_epoch = len(dataloader)
     total_steps = cfg["num_epochs"] * steps_per_epoch
+    beta_schedule_steps = steps_per_epoch
+    if cfg.get("beta_warmup_fraction") is not None:
+        beta_schedule_steps = get_fractional_warmup_steps(
+            total_steps, float(cfg["beta_warmup_fraction"])
+        )
     tokens_passed = 0
     global_step = 0
     best_train_loss = float("inf")
@@ -168,7 +179,7 @@ def main(cfg):
                     global_step,
                     start=cfg["beta_start"],
                     end=cfg["beta_end"],
-                    total_steps=steps_per_epoch,
+                    total_steps=beta_schedule_steps,
                 )
                 beta_t = torch.tensor(b, device=device)
 
@@ -218,13 +229,19 @@ def main(cfg):
                     "E_L",
                     "length_entropy",
                 ]
+                if cfg["varlen"]:
+                    metric_order.extend(
+                        f"recon_loss@{length}"
+                        for length in range(1, cfg["maxlen"] + 1)
+                    )
                 metric_values = " ".join(
                     f"{name}={float(metrics[name]):.4g}"
                     for name in metric_order if name in metrics
                 )
                 if cfg["varlen"]:
                     length_distribution = ", ".join(
-                        f"L{length}={float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
+                        f"L{length}:p={float(metrics[f'length_probability@{length}']) * 100:.2f}%"
+                        f"/argmax={float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
                         for length in range(1, cfg["maxlen"] + 1)
                         if f"length_fraction@{length}" in metrics
                     )
@@ -390,4 +407,7 @@ if __name__ == "__main__":
         ap.error("--max-length must be at least 1")
     cfg["maxlen"] = args.max_length
     cfg["out_dir"] = os.path.join(cfg["out_dir"], f"maxlen_{args.max_length}")
-    main(cfg)
+    log_path = os.path.join(cfg["out_dir"], "train.log")
+    with tee_run_output(log_path):
+        print(f"[log] Saving run output to {log_path}", flush=True)
+        main(cfg)
