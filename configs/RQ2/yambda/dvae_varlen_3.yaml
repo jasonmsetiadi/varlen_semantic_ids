@@ -23,7 +23,6 @@ codebook_dropout: 0.1
 decoder_hidden_mul: 2
 decoder_num_layers: 2
 varlen: true
-length_cost: 5.0
 
 # optimization
 batch_num_tokens: 8192

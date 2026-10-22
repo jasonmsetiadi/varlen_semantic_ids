@@ -91,6 +91,7 @@ def main(cfg):
         num_layers=cfg["decoder_num_layers"],
     )
     graph = (VarlenGame(encoder, decoder) if cfg["varlen"] else Game(encoder, decoder)).to(device)
+    length_prior_params = [graph.length_prior_logits] if cfg["varlen"] else []
     compile_setting = cfg.get("compile", "auto")
     if isinstance(compile_setting, str) and compile_setting.lower() == "auto":
         if str(device).startswith("cuda") and torch.cuda.is_available():
@@ -110,8 +111,20 @@ def main(cfg):
         enc_inf = torch.compile(enc_inf, dynamic=False)
         dec_inf = torch.compile(dec_inf, dynamic=False)
 
+    if length_prior_params:
+        length_prior_param_ids = {id(param) for param in length_prior_params}
+        model_params = [
+            param for param in graph.parameters()
+            if id(param) not in length_prior_param_ids
+        ]
+        optimizer_params = [
+            {"params": model_params, "weight_decay": float(cfg["weight_decay"])},
+            {"params": length_prior_params, "weight_decay": 0.0},
+        ]
+    else:
+        optimizer_params = graph.parameters()
     optimizer = torch.optim.AdamW(
-        graph.parameters(),
+        optimizer_params,
         lr=float(cfg["lr"]),
         weight_decay=float(cfg["weight_decay"]),
     )
@@ -121,10 +134,6 @@ def main(cfg):
     if cfg.get("tensorboard_logdir") is not None:
         from torch.utils.tensorboard import SummaryWriter
         writer = SummaryWriter(log_dir=cfg["tensorboard_logdir"])
-
-    length_cost_t = None
-    if cfg["varlen"]:
-        length_cost_t = torch.tensor(cfg["length_cost"], device=device)
 
     sampled_train_items = train_items.sample(
         fraction=cfg["train_sample_frac_for_eval"],
@@ -194,9 +203,6 @@ def main(cfg):
                     beta=beta_t,
                     free_bits=free_bits_t,
                 )
-                if cfg["varlen"]:
-                    kwargs["length_cost"] = length_cost_t
-
                 loss, metrics = graph(**kwargs)
                 loss.backward()
 
@@ -223,9 +229,11 @@ def main(cfg):
                     "loss",
                     "recon_loss",
                     "vocab_loss",
-                    "KL_term",
+                    "vocab_kl",
                     "length_loss",
-                    "KL_length_term",
+                    "length_kl",
+                    "rate_loss",
+                    "total_rate",
                     "E_L",
                     "length_entropy",
                 ]
@@ -240,7 +248,8 @@ def main(cfg):
                 )
                 if cfg["varlen"]:
                     length_distribution = ", ".join(
-                        f"L{length}:p={float(metrics[f'length_probability@{length}']) * 100:.2f}%"
+                        f"L{length}:q={float(metrics[f'length_posterior_probability@{length}']) * 100:.2f}%"
+                        f"/prior={float(metrics[f'length_prior_probability@{length}']) * 100:.2f}%"
                         f"/argmax={float(metrics[f'length_fraction@{length}']) * 100:.2f}%"
                         for length in range(1, cfg["maxlen"] + 1)
                         if f"length_fraction@{length}" in metrics

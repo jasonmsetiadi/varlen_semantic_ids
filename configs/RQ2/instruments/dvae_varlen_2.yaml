@@ -18,7 +18,6 @@ codebook_dropout: 0.1
 decoder_hidden_mul: 2
 decoder_num_layers: 2
 varlen: true
-length_cost: 0.3
 compile: auto
 batch_num_tokens: 8192
 shuffle: true

@@ -79,10 +79,11 @@ class VarlenGame(nn.Module):
             torch.log(torch.tensor(self.encoder.vocab_size, dtype=torch.float32)),
             persistent=True,
         )
+        self.length_prior_logits = nn.Parameter(torch.zeros(self.encoder.maxlen))
 
         self.loss_fn = lambda a, b: F.mse_loss(a, b, reduction='none').sum(dim=1)
 
-    def forward(self, x, tau, length_cost, beta=None, free_bits=None):
+    def forward(self, x, tau, beta=None, free_bits=None):
         with torch.autocast('cuda', torch.bfloat16):
             logits, message, length_logits, survival_logits = self.encoder(x, tau)
             receiver_output = self.decoder(message)
@@ -119,10 +120,15 @@ class VarlenGame(nn.Module):
 
             E_L = (length_probs * torch.arange(1, T + 1, device=length_probs.device, dtype=length_probs.dtype)[None, :]).sum(dim=-1).mean()
             length_entropy = -(length_probs * length_logprobs).sum(dim=-1).mean()
-            KL_length_term = -length_entropy + length_cost * E_L
+            length_prior_logprobs = self.length_prior_logits.log_softmax(dim=-1)
+            length_prior_probs = length_prior_logprobs.exp()
+            KL_length_term = (
+                length_probs * (length_logprobs - length_prior_logprobs[None, :])
+            ).sum(dim=-1).mean()
+            total_rate = KL_vocab_term + KL_length_term
 
             if beta is not None:
-                loss = recon_loss + beta * (KL_vocab_term + KL_length_term)
+                loss = recon_loss + beta * total_rate
             else:
                 loss = recon_loss
 
@@ -142,6 +148,10 @@ class VarlenGame(nn.Module):
                 metrics = {
                     'loss': loss,
                     'recon_loss': recon_loss.detach(),
+                    'vocab_kl': KL_vocab_term.detach(),
+                    'length_kl': KL_length_term.detach(),
+                    'total_rate': total_rate.detach(),
+                    # Backward-compatible aliases for existing dashboards.
                     'KL_term': KL_vocab_term.detach(),
                     'KL_length_term': KL_length_term.detach(),
                     'H_Z_given_X': H_Z_given_X_total,
@@ -157,12 +167,16 @@ class VarlenGame(nn.Module):
                 for step in range(T):
                     metrics[f'recon_loss@{step + 1}'] = recon_loss_per_step[step].mean().detach()
                     metrics[f'length_fraction@{step + 1}'] = (length_counts[step].float() / x.shape[0]).detach()
+                    metrics[f'length_posterior_probability@{step + 1}'] = length_probs[:, step].mean().detach()
+                    metrics[f'length_prior_probability@{step + 1}'] = length_prior_probs[step].detach()
+                    # Backward-compatible alias for aggregate posterior probability.
                     metrics[f'length_probability@{step + 1}'] = length_probs[:, step].mean().detach()
                 if free_bits is not None:
                     metrics['frac_under_fb'] = (KL_step < free_bits).float().mean(dim=0).sum()
                 if beta is not None:
                     metrics['vocab_loss'] = beta * KL_vocab_term.detach()
                     metrics['length_loss'] = beta * KL_length_term.detach()
+                    metrics['rate_loss'] = beta * total_rate.detach()
                 
         return loss, metrics
         
