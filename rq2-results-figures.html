@@ -1,0 +1,761 @@
+<div id="rq2-results-figures">
+  <style>
+    #rq2-results-figures { font-family: system-ui, sans-serif; color: #202124; max-width: 1100px; }
+    #rq2-results-figures h2 { margin: 0 0 4px; font-size: 20px; }
+    #rq2-results-figures p { margin: 0 0 14px; color: #5f6368; font-size: 13px; }
+    #rq2-results-figures .panel { min-width: 0; }
+    #rq2-results-figures h3 { margin: 0 0 4px; font-size: 16px; }
+    #rq2-results-figures svg { width: 100%; height: auto; overflow: visible; }
+    #rq2-results-figures .gridline { stroke: #e8eaed; stroke-width: 1; }
+    #rq2-results-figures text { fill: #3c4043; font-size: 11px; }
+    #rq2-results-figures .line-panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    #rq2-results-figures .distribution-panel { grid-column: 1 / -1; }
+    #rq2-results-figures .chart-legend { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 2px; font-size: 10px; color: #3c4043; }
+    #rq2-results-figures .chart-legend span { white-space: nowrap; }
+    #rq2-results-figures .chart-legend i { display: inline-block; width: 9px; height: 9px; margin-right: 4px; border-radius: 50%; }
+    #rq2-results-figures .chart-legend i.diamond { border-radius: 0; transform: rotate(45deg); }
+    #rq2-results-figures .chart-legend i.triangle { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+    @media (max-width: 760px) { #rq2-results-figures .line-panels { grid-template-columns: 1fr; } }
+  </style>
+  <h2>RQ2 results overview</h2>
+  <p id="plot-note">dVAE sequential-recommendation metrics by semantic ID length.</p>
+  <label for="dataset-select">Dataset: </label>
+  <select id="dataset-select">
+    <option value="instruments">Instruments</option>
+    <option value="video_games">Video Games</option>
+    <option value="yambda">Yambda</option>
+  </select>
+  <div class="line-panels" id="charts"></div>
+  <script>
+    (() => {
+      /* GENERATED_DATA_START */
+      const data = {
+        "instruments": {
+                "dvae": {
+                        "lengths": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "maxlens": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "length_distributions": [],
+                        "recall10": [
+                                0.02014312218393852,
+                                0.02809435462496689,
+                                0.014047177312483509,
+                                0.018685396236416574
+                        ],
+                        "recall100": [
+                                0.07156109196925509,
+                                0.09965544659422204,
+                                0.09117413199045854,
+                                0.09316194010071528
+                        ],
+                        "ndcg10": [
+                                0.011798684616807633,
+                                0.015371409689788904,
+                                0.0075900676712259306,
+                                0.010706108469799473
+                        ],
+                        "ndcg100": [
+                                0.02197964367004016,
+                                0.02889884081941433,
+                                0.022494174779316485,
+                                0.02528465229993345
+                        ],
+                        "coverage10": [
+                                36.0,
+                                12.0,
+                                13.0,
+                                17.0
+                        ],
+                        "coverage100": [
+                                291.0,
+                                144.0,
+                                147.0,
+                                190.0
+                        ]
+                },
+                "rkmeans": {
+                        "lengths": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "maxlens": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "length_distributions": [],
+                        "recall10": [
+                                0.02928703949112108,
+                                0.02385369732308512,
+                                0.024913861648555524,
+                                0.02570898489265828
+                        ],
+                        "recall100": [
+                                0.1068115557911477,
+                                0.12059369202226326,
+                                0.11701563742380057,
+                                0.11144977471508119
+                        ],
+                        "ndcg10": [
+                                0.014699661071753935,
+                                0.014031706290751716,
+                                0.014042656738503387,
+                                0.014888726019106728
+                        ],
+                        "ndcg100": [
+                                0.029820398437077244,
+                                0.032621239715891696,
+                                0.031348507452242776,
+                                0.031385402185102614
+                        ],
+                        "coverage10": [
+                                25.0,
+                                12.0,
+                                17.0,
+                                15.0
+                        ],
+                        "coverage100": [
+                                236.0,
+                                122.0,
+                                136.0,
+                                171.0
+                        ]
+                },
+                "rqvae": {
+                        "lengths": [],
+                        "maxlens": [],
+                        "length_distributions": [],
+                        "recall10": [],
+                        "recall100": [],
+                        "ndcg10": [],
+                        "ndcg100": [],
+                        "coverage10": [],
+                        "coverage100": []
+                },
+                "varlen_dvae": {
+                        "lengths": [
+                                1.7937180165872595,
+                                1.5999647079583554
+                        ],
+                        "maxlens": [
+                                5,
+                                9
+                        ],
+                        "length_distributions": [
+                                {
+                                        "maxlen": 5,
+                                        "lengths": [
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5
+                                        ],
+                                        "counts": [
+                                                1171,
+                                                4494,
+                                                2,
+                                                0,
+                                                0
+                                        ]
+                                },
+                                {
+                                        "maxlen": 9,
+                                        "lengths": [
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5,
+                                                6,
+                                                7,
+                                                8,
+                                                9
+                                        ],
+                                        "counts": [
+                                                2267,
+                                                3400,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0
+                                        ]
+                                }
+                        ],
+                        "recall10": [
+                                0.0011926848661542523,
+                                0.001325205406838063
+                        ],
+                        "recall100": [
+                                0.01974556056188709,
+                                0.019613040021203284
+                        ],
+                        "ndcg10": [
+                                0.0004905401276726366,
+                                0.00045176595145817415
+                        ],
+                        "ndcg100": [
+                                0.003906625125344597,
+                                0.00400347762656475
+                        ],
+                        "coverage10": [
+                                65.0,
+                                49.0
+                        ],
+                        "coverage100": [
+                                620.0,
+                                459.0
+                        ]
+                },
+                "varlen_rqvae": {
+                        "lengths": [],
+                        "maxlens": [],
+                        "length_distributions": [],
+                        "recall10": [],
+                        "recall100": [],
+                        "ndcg10": [],
+                        "ndcg100": [],
+                        "coverage10": [],
+                        "coverage100": []
+                }
+        },
+        "video_games": {
+                "dvae": {
+                        "lengths": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "maxlens": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "length_distributions": [],
+                        "recall10": [
+                                0.011132043158075047,
+                                0.018325055660215712,
+                                0.026031854769652363,
+                                0.014214762801849658
+                        ],
+                        "recall100": [
+                                0.05994177085117285,
+                                0.05480390477821543,
+                                0.04949477650282571,
+                                0.05394759376605588
+                        ],
+                        "ndcg10": [
+                                0.005916526684131876,
+                                0.009259096521606534,
+                                0.011186480741501047,
+                                0.006352510991755456
+                        ],
+                        "ndcg100": [
+                                0.015197681665735084,
+                                0.016054542932023824,
+                                0.015897965147104245,
+                                0.014725142457149084
+                        ],
+                        "coverage10": [
+                                15.0,
+                                21.0,
+                                15.0,
+                                23.0
+                        ],
+                        "coverage100": [
+                                161.0,
+                                229.0,
+                                291.0,
+                                396.0
+                        ]
+                },
+                "rkmeans": {
+                        "lengths": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "maxlens": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "length_distributions": [],
+                        "recall10": [
+                                0.01489981161157733,
+                                0.012673402979962329,
+                                0.01695495804076037,
+                                0.014728549409145414
+                        ],
+                        "recall100": [
+                                0.05531769138551127,
+                                0.06764856996060974,
+                                0.05343380715875995,
+                                0.06918992978249705
+                        ],
+                        "ndcg10": [
+                                0.008428893310141749,
+                                0.006463038916824891,
+                                0.0075548062922085124,
+                                0.007463971399607821
+                        ],
+                        "ndcg100": [
+                                0.016703256303083548,
+                                0.017877194181294354,
+                                0.015617960601104196,
+                                0.01887854384281616
+                        ],
+                        "coverage10": [
+                                16.0,
+                                14.0,
+                                14.0,
+                                13.0
+                        ],
+                        "coverage100": [
+                                198.0,
+                                186.0,
+                                186.0,
+                                167.0
+                        ]
+                },
+                "rqvae": {
+                        "lengths": [],
+                        "maxlens": [],
+                        "length_distributions": [],
+                        "recall10": [],
+                        "recall100": [],
+                        "ndcg10": [],
+                        "ndcg100": [],
+                        "coverage10": [],
+                        "coverage100": []
+                },
+                "varlen_dvae": {
+                        "lengths": [
+                                1.775491718426501,
+                                1.5619824016563146
+                        ],
+                        "maxlens": [
+                                5,
+                                9
+                        ],
+                        "length_distributions": [
+                                {
+                                        "maxlen": 5,
+                                        "lengths": [
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5
+                                        ],
+                                        "counts": [
+                                                1741,
+                                                5981,
+                                                6,
+                                                0,
+                                                0
+                                        ]
+                                },
+                                {
+                                        "maxlen": 9,
+                                        "lengths": [
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5,
+                                                6,
+                                                7,
+                                                8,
+                                                9
+                                        ],
+                                        "counts": [
+                                                3458,
+                                                4197,
+                                                73,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0
+                                        ]
+                                }
+                        ],
+                        "recall10": [
+                                0.014214762801849617,
+                                0.009419421133755762
+                        ],
+                        "recall100": [
+                                0.04350059941770842,
+                                0.03767768453502301
+                        ],
+                        "ndcg10": [
+                                0.006798034232913396,
+                                0.004503173822516249
+                        ],
+                        "ndcg100": [
+                                0.013556343136127382,
+                                0.010262797921555768
+                        ],
+                        "coverage10": [
+                                13.0,
+                                20.0
+                        ],
+                        "coverage100": [
+                                148.0,
+                                183.0
+                        ]
+                },
+                "varlen_rqvae": {
+                        "lengths": [],
+                        "maxlens": [],
+                        "length_distributions": [],
+                        "recall10": [],
+                        "recall100": [],
+                        "ndcg10": [],
+                        "ndcg100": [],
+                        "coverage10": [],
+                        "coverage100": []
+                }
+        },
+        "yambda": {
+                "dvae": {
+                        "lengths": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "maxlens": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "length_distributions": [],
+                        "recall10": [
+                                0.050123599642350164,
+                                0.04554778309577657,
+                                0.04118234891916062,
+                                0.04112975332667122
+                        ],
+                        "recall100": [
+                                0.19192131699363535,
+                                0.1764056172092781,
+                                0.16588649871140912,
+                                0.15920685846526075
+                        ],
+                        "ndcg10": [
+                                0.026810427788965727,
+                                0.02381594838471235,
+                                0.022032751040711975,
+                                0.02127187016396764
+                        ],
+                        "ndcg100": [
+                                0.054264550617868654,
+                                0.049083856189504664,
+                                0.04631319259274585,
+                                0.044159569523268806
+                        ],
+                        "coverage10": [
+                                19539.0,
+                                14527.0,
+                                11777.0,
+                                10138.0
+                        ],
+                        "coverage100": [
+                                66348.0,
+                                56926.0,
+                                48680.0,
+                                43611.0
+                        ]
+                },
+                "rkmeans": {
+                        "lengths": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "maxlens": [
+                                3,
+                                5,
+                                7,
+                                9
+                        ],
+                        "length_distributions": [],
+                        "recall10": [
+                                0.05085993793720083,
+                                0.04560037868826594,
+                                0.040603797401777886,
+                                0.0388681428496291
+                        ],
+                        "recall100": [
+                                0.19139536106874205,
+                                0.17472255824961883,
+                                0.1638352706043245,
+                                0.1533161521064533
+                        ],
+                        "ndcg10": [
+                                0.026472630878303798,
+                                0.023637192185838995,
+                                0.021657472240651735,
+                                0.020351617379909953
+                        ],
+                        "ndcg100": [
+                                0.053696764811210156,
+                                0.04847312041303167,
+                                0.04537265189649046,
+                                0.042388945835417385
+                        ],
+                        "coverage10": [
+                                18943.0,
+                                13519.0,
+                                10034.0,
+                                8515.0
+                        ],
+                        "coverage100": [
+                                62613.0,
+                                50739.0,
+                                41157.0,
+                                35621.0
+                        ]
+                },
+                "rqvae": {
+                        "lengths": [],
+                        "maxlens": [],
+                        "length_distributions": [],
+                        "recall10": [],
+                        "recall100": [],
+                        "ndcg10": [],
+                        "ndcg100": [],
+                        "coverage10": [],
+                        "coverage100": []
+                },
+                "varlen_dvae": {
+                        "lengths": [
+                                2.71881038895148,
+                                2.7904079028852395
+                        ],
+                        "maxlens": [
+                                5,
+                                9
+                        ],
+                        "length_distributions": [
+                                {
+                                        "maxlen": 5,
+                                        "lengths": [
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5
+                                        ],
+                                        "counts": [
+                                                26167,
+                                                88888,
+                                                94737,
+                                                50676,
+                                                7586
+                                        ]
+                                },
+                                {
+                                        "maxlen": 9,
+                                        "lengths": [
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5,
+                                                6,
+                                                7,
+                                                8,
+                                                9
+                                        ],
+                                        "counts": [
+                                                25542,
+                                                84546,
+                                                90129,
+                                                56461,
+                                                11141,
+                                                235,
+                                                0,
+                                                0,
+                                                0
+                                        ]
+                                }
+                        ],
+                        "recall10": [
+                                0.05243780571188134,
+                                0.05217482774943443
+                        ],
+                        "recall100": [
+                                0.1963919423552316,
+                                0.19418292747067706
+                        ],
+                        "ndcg10": [
+                                0.02784625252355893,
+                                0.02756550698964335
+                        ],
+                        "ndcg100": [
+                                0.05556084768831062,
+                                0.05513702261447812
+                        ],
+                        "coverage10": [
+                                20939.0,
+                                21095.0
+                        ],
+                        "coverage100": [
+                                70832.0,
+                                70984.0
+                        ]
+                },
+                "varlen_rqvae": {
+                        "lengths": [],
+                        "maxlens": [],
+                        "length_distributions": [],
+                        "recall10": [],
+                        "recall100": [],
+                        "ndcg10": [],
+                        "ndcg100": [],
+                        "coverage10": [],
+                        "coverage100": []
+                }
+        }
+};
+      /* GENERATED_DATA_END */
+      const charts = document.getElementById('charts');
+      function lengthChart(metric, cutoff) {
+        const dataset = document.getElementById('dataset-select').value;
+        const values = data[dataset], W = 340, H = 270, m = { t: 55, r: 14, b: 45, l: 48 };
+        const pw = W - m.l - m.r, ph = H - m.t - m.b;
+        const colors = { dvae: '#3367d6', rkmeans: '#f4b400', rqvae: '#9c27b0', varlen_dvae: '#0f9d58', varlen_rqvae: '#e91e63' };
+        const series = ['dvae', 'rkmeans', 'rqvae', 'varlen_dvae', 'varlen_rqvae'].filter(tokenizer => values[tokenizer]).map(tokenizer => ({
+          tokenizer,
+          points: values[tokenizer].lengths.map((length, i) => ({
+            length,
+            maxlen: values[tokenizer].maxlens[i],
+            value: values[tokenizer][`${metric.toLowerCase()}${cutoff}`][i]
+          }))
+        }));
+        const allPoints = series.flatMap(item => item.points);
+        if (!allPoints.length) return '<p>No per-length dVAE or RKMeans seqrec.json files are available for this dataset.</p>';
+        const max = Math.max(...allPoints.map(point => point.value)) * 1.12 || 1;
+        const configuredMax = series.flatMap(item => item.points.map(point => point.maxlen || point.length));
+        const maxLength = Math.max(1, ...configuredMax.map(length => Math.ceil(length)));
+        const x = length => m.l + pw * (length - 1) / (maxLength - 1 || 1);
+        let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="dVAE and RKMeans ${metric}@${cutoff} by semantic ID length">`;
+        for (let i=0; i<=4; i++) {
+          const y = m.t + ph - ph*i/4, v = max*i/4;
+          s += `<line class="gridline" x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}"/><text x="${m.l-7}" y="${y+4}" text-anchor="end">${metric === 'Coverage' ? v.toFixed(0) : v.toFixed(3)}</text>`;
+        }
+        for (let len = 1; len <= maxLength; len++) {
+          const tickX = x(len);
+          s += `<line class="gridline" x1="${tickX}" x2="${tickX}" y1="${m.t+ph}" y2="${m.t+ph+4}"/>`;
+          s += `<text x="${tickX}" y="${H-24}" text-anchor="middle">${len}</text>`;
+        }
+        s += `<text x="${W/2}" y="${H-5}" text-anchor="middle">Semantic ID length</text>`;
+        s += `<text transform="translate(13 ${m.t+ph/2}) rotate(-90)" text-anchor="middle">${metric}${metric === 'Coverage' ? ' (items)' : ''}</text>`;
+        series.forEach(({tokenizer, points}) => {
+          const color = colors[tokenizer];
+          const coords = points.map(point => `${x(point.length)},${m.t+ph-ph*point.value/max}`).join(' ');
+          if (!tokenizer.startsWith('varlen_') && points.length > 1) s += `<polyline points="${coords}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
+          points.forEach(point => {
+            const fixedLabels = { dvae: 'dVAE', rkmeans: 'RKMeans', rqvae: 'RQ-VAE' };
+            const label = tokenizer === 'varlen_dvae' ? `Varlen dVAE maxlen ${point.maxlen}` : tokenizer === 'varlen_rqvae' ? `Varlen RQ-VAE maxlen ${point.maxlen}` : fixedLabels[tokenizer];
+            const px = x(point.length), py = m.t+ph-ph*point.value/max;
+            if (tokenizer.startsWith('varlen_') && point.maxlen === 5) {
+              s += `<path d="M ${px} ${py-5} L ${px+5} ${py} L ${px} ${py+5} L ${px-5} ${py} Z" fill="${color}"><title>${label}, ${metric}@${cutoff}, mean length ${point.length.toFixed(2)}: ${point.value}</title></path>`;
+            } else if (tokenizer.startsWith('varlen_') && point.maxlen === 9) {
+              s += `<path d="M ${px} ${py-5} L ${px+5} ${py+4} L ${px-5} ${py+4} Z" fill="${color}"><title>${label}, ${metric}@${cutoff}, mean length ${point.length.toFixed(2)}: ${point.value}</title></path>`;
+            } else {
+              s += `<circle cx="${px}" cy="${py}" r="4" fill="${color}"><title>${label}, ${metric}@${cutoff}, mean length ${point.length.toFixed(2)}: ${point.value}</title></circle>`;
+            }
+          });
+        });
+        return s + '</svg>';
+      }
+      function lengthDistributionChart(dataset) {
+        const runs = ['varlen_dvae', 'varlen_rqvae'].flatMap(tokenizer =>
+          (data[dataset][tokenizer]?.length_distributions || []).map(run => ({...run, tokenizer}))
+        );
+        if (!runs.length) return '<p>No variable-length distributions are available for this dataset.</p>';
+        const W = 800, H = 320, m = { t: 34, r: 20, b: 52, l: 62 };
+        const pw = W - m.l - m.r, ph = H - m.t - m.b;
+        const maxLength = Math.max(...runs.map(run => run.maxlen));
+        const groupWidth = pw / maxLength, barWidth = Math.min(24, groupWidth * 0.7 / runs.length);
+        const colors = { varlen_dvae: '#0f9d58', varlen_rqvae: '#e91e63' };
+        let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Variable-length semantic ID length distribution for ${dataset}">`;
+        for (let tick = 0; tick <= 4; tick++) {
+          const value = tick * 25, y = m.t + ph - ph * value / 100;
+          s += `<line class="gridline" x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}"/><text x="${m.l-8}" y="${y+4}" text-anchor="end">${value}%</text>`;
+        }
+        for (let length = 1; length <= maxLength; length++) {
+          const center = m.l + groupWidth * (length - 0.5);
+          s += `<text x="${center}" y="${H-25}" text-anchor="middle">${length}</text>`;
+          runs.forEach((run, runIndex) => {
+            const total = run.counts.reduce((sum, count) => sum + count, 0) || 1;
+            const count = run.counts[length - 1] || 0;
+            const percent = count / total * 100;
+            const height = ph * percent / 100;
+            const x = center + (runIndex - (runs.length - 1) / 2) * (barWidth + 2) - barWidth / 2;
+            const y = m.t + ph - height;
+            s += `<rect x="${x}" y="${y}" width="${barWidth}" height="${height}" fill="${colors[run.tokenizer]}"><title>${run.tokenizer === 'varlen_dvae' ? 'Varlen dVAE' : 'Varlen RQ-VAE'} maxlen ${run.maxlen}, allocated length ${length}: ${count} items (${percent.toFixed(1)}%)</title></rect>`;
+          });
+        }
+        s += `<text x="${W/2}" y="${H-5}" text-anchor="middle">Allocated semantic ID length</text>`;
+        s += `<text transform="translate(16 ${m.t+ph/2}) rotate(-90)" text-anchor="middle">Items (%)</text>`;
+        return s + '</svg>';
+      }
+      function render() {
+        const dataset = document.getElementById('dataset-select').value;
+        const lengths = [...data[dataset].dvae.lengths, ...data[dataset].rkmeans.lengths, ...(data[dataset].rqvae?.lengths || []), ...data[dataset].varlen_dvae.lengths, ...(data[dataset].varlen_rqvae?.lengths || [])];
+        const oneLength = new Set(lengths).size === 1;
+        const noRuns = lengths.length === 0;
+        document.getElementById('plot-note').textContent = noRuns
+          ? 'No per-length tokenizer seqrec results were found under results/RQ2/' + dataset + '/<tokenizer>/maxlen_*/seqrec.json.'
+          : oneLength
+          ? 'Only one semantic ID length is available across tokenizers. Variable-length markers are positioned by learned mean length.'
+          : 'Variable-length markers are positioned by learned mean length; fixed-length tokenizer runs are connected.';
+        const colors = { dvae: '#3367d6', rkmeans: '#f4b400', rqvae: '#9c27b0', varlen_dvae: '#0f9d58', varlen_rqvae: '#e91e63' };
+        const varlenLegend = ['varlen_dvae', 'varlen_rqvae'].flatMap(tokenizer =>
+          (data[dataset][tokenizer]?.maxlens || []).map(maxlen => {
+            const shape = maxlen === 5 ? 'diamond' : maxlen === 9 ? 'triangle' : '';
+            const label = tokenizer === 'varlen_dvae' ? 'Varlen dVAE' : 'Varlen RQ-VAE';
+            return `<span><i class="${shape}" style="background:${colors[tokenizer]}"></i>${label} maxlen ${maxlen}</span>`;
+          })
+        ).join('');
+        const rqvaeLegend = data[dataset].rqvae ? `<span><i style="background:${colors.rqvae}"></i>RQ-VAE</span>` : '';
+        const legend = `<div class="chart-legend"><span><i style="background:${colors.dvae}"></i>dVAE</span><span><i style="background:${colors.rkmeans}"></i>RKMeans</span>${rqvaeLegend}${varlenLegend}</div>`;
+        const metricCharts = [10, 100].map(cutoff => ['Recall', 'NDCG', 'Coverage'].map(metric => `<div class="panel"><h3>${metric}@${cutoff}</h3>${lengthChart(metric, cutoff)}${legend}</div>`).join('')).join('');
+        const distributions = ['varlen_dvae', 'varlen_rqvae'].flatMap(tokenizer =>
+          (data[dataset][tokenizer]?.length_distributions || []).map(run => ({...run, tokenizer}))
+        );
+        const distributionLegend = distributions.map(run => `<span><i style="background:${colors[run.tokenizer]}"></i>${run.tokenizer === 'varlen_dvae' ? 'Varlen dVAE' : 'Varlen RQ-VAE'} maxlen ${run.maxlen}</span>`).join('');
+        charts.innerHTML = metricCharts + `<div class="panel distribution-panel"><h3>Variable-length allocated length distribution</h3>${lengthDistributionChart(dataset)}<div class="chart-legend">${distributionLegend}</div><p>Bars show the share of train-holdout items assigned each length, with missing lengths shown as zero.</p></div>`;
+      }
+      document.getElementById('dataset-select').addEventListener('change', render);
+      render();
+    })();
+  </script>
+</div>
